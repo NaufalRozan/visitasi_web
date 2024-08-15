@@ -10,32 +10,32 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Models\Prodi;
 
+
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
-        $prodis = Prodi::all(); // Ambil semua data prodi dari database
-        return view('home', ['prodis' => $prodis]);
+        return view('home', ['prodis' => Prodi::all()]);
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
 
-        $request->session()->regenerate();
+            $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('dashboard'));
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->route('login')
+                ->withErrors([
+                    'email' => 'Email atau password yang Anda masukkan salah.',
+                    'prodi_id' => 'Prodi tidak sesuai dengan akun Anda.',
+                ])
+                ->withInput($request->only('email', 'prodi_id'));
+        }
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

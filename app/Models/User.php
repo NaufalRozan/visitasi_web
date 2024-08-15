@@ -28,16 +28,7 @@ class User extends Authenticatable
     ];
     public function prodi()
     {
-        // Ambil data prodi dari API berdasarkan prodi_id
-        $response = Http::get('http://192.168.100.129:8000/api/prodi/' . $this->prodi_id);
-
-        // Jika request gagal, return null atau custom error handling
-        if ($response->failed()) {
-            return null; // Atau lakukan penanganan error lainnya
-        }
-
-        // Return data prodi dari API
-        return $response->json();
+        return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
     /**

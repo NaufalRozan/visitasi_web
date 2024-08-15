@@ -62,12 +62,55 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        /* Alert styling */
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .alert.success {
+            background-color: #4CAF50;
+        }
+
+        .alert.info {
+            background-color: #2196F3;
+        }
+
+        .alert.warning {
+            background-color: #ff9800;
+        }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
     </style>
 </head>
 
 <body>
     <!-- Background tetap pada tempatnya dan tidak scroll -->
     <div class="bg-cover" style="background-image: url('{{ Vite::asset('resources/images/background.jpg') }}');"></div>
+
+    <!-- Alert jika ada error -->
+    @if ($errors->any())
+        <div class="alert">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            {{ $errors->first() }}
+        </div>
+    @endif
 
     <!-- Konten di atas background yang bisa di-scroll -->
     <div class="p-10">
@@ -84,14 +127,14 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2 class="text-center mb-4">Login {{ $prodi->nama_prodi }}</h2>
+            <h2 class="text-center mb-4">Login</h2>
             <form action="{{ route('login') }}" method="POST">
                 @csrf
-                <input type="hidden" name="prodi_id" id="prodi_id" value="">
+                <input type="hidden" name="prodi_id" id="prodi_id" value="{{ old('prodi_id') }}">
 
                 <div class="mb-4">
                     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" name="email" id="email" required
+                    <input type="email" name="email" id="email" value="{{ old('email') }}" required
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
 
