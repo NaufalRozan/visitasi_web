@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [ProdiLoginController::class, 'index'])->name('home'); // Perbarui route untuk halaman awal
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('pages.home.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
