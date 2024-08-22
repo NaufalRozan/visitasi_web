@@ -63,6 +63,7 @@
                                         @csrf
                                         @method('DELETE')
                                     </form>
+
                                 </td>
                             </tr>
                         @endforeach
@@ -71,6 +72,8 @@
             </div>
         </section>
     </div>
+
+    <x-sweet-alert-delete />
 
     <!-- Modal -->
     <div id="tambahDataModal" class="modal"
@@ -122,8 +125,6 @@
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
 
-    <!-- SweetAlert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
@@ -162,23 +163,6 @@
             document.getElementById('tambahDataModal').style.display = 'none';
 
 
-        }
-
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Anda tidak dapat mengembalikan data yang telah dihapus!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + id).submit();
-                }
-            });
         }
     </script>
 @endpush
