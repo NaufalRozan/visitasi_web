@@ -37,6 +37,7 @@ class StandarController extends Controller
     {
         // Validasi input
         $request->validate([
+            'no_urut' => 'required|integer',
             'nama_standar' => 'required|string|max:255',
             'prodi_id' => 'required|exists:prodi,id', // Validasi prodi_id
         ]);
@@ -49,20 +50,38 @@ class StandarController extends Controller
             return redirect()->back()->withErrors('Akreditasi untuk prodi yang dipilih tidak ditemukan.');
         }
 
-        // Hitung jumlah data standar yang sudah ada untuk menentukan no_urut
-        $lastNumber = Standar::whereHas('akreditasi', function ($query) use ($prodi) {
-            $query->where('prodi_id', $prodi->id);
-        })->max('no_urut');
-
-        $newNumber = $lastNumber ? $lastNumber + 1 : 1;
-
-        // Simpan data standar baru
+        // Simpan data standar baru dengan nomor urut dari input user
         Standar::create([
-            'no_urut' => $newNumber,
+            'no_urut' => $request->no_urut,
             'nama_standar' => $request->nama_standar,
             'akreditasi_id' => $akreditasi->id,
         ]);
 
         return redirect()->route('standar.index')->with('success', 'Standar berhasil ditambahkan!');
+    }
+
+
+    public function update(Request $request, Standar $standar)
+    {
+        $request->validate([
+            'no_urut' => 'required|integer',
+            'nama_standar' => 'required|string|max:255',
+        ]);
+
+        $standar->update([
+            'no_urut' => $request->no_urut,
+            'nama_standar' => $request->nama_standar,
+        ]);
+
+        return redirect()->route('standar.index')->with('success', 'Standar berhasil diperbarui!');
+    }
+
+
+
+    public function destroy(Standar $standar)
+    {
+        $standar->delete();
+
+        return redirect()->route('standar.index')->with('success', 'Standar berhasil dihapus!');
     }
 }

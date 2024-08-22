@@ -21,11 +21,10 @@ Route::middleware('auth')->group(function () {
         return view('pages.master.standar');
     })->name('standar');
 
-    // Standar Filter
-    Route::get('/standar', [StandarController::class, 'index'])->name('standar.index');
-    Route::get('/standar/filter', [StandarController::class, 'filter'])->name('standar.filter');
-    Route::post('/standar', [StandarController::class, 'store'])->name('standar.store');
 
+
+    // Standar Routes (CRUD untuk Standar)
+    Route::resource('standar', StandarController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

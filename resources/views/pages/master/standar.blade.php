@@ -53,8 +53,16 @@
                                 <td>{{ $standar->no_urut }}</td>
                                 <td>{{ $standar->nama_standar }}</td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                    <button class="btn btn-warning btn-sm"
+                                        onclick="openModal('edit', {{ $standar->id }}, '{{ $standar->nama_standar }}', {{ $standar->no_urut }})">Edit</button>
+                                    <button class="btn btn-danger btn-sm"
+                                        onclick="confirmDelete({{ $standar->id }})">Delete</button>
+                                    <form id="delete-form-{{ $standar->id }}"
+                                        action="{{ route('standar.destroy', $standar->id) }}" method="POST"
+                                        style="display: none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -71,15 +79,16 @@
             style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 50%; max-width: 500px; border-radius: 8px;">
             <span class="close" onclick="closeModal()"
                 style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            <h2 class="text-center mb-4">Tambah Standar</h2>
-            <form action="{{ route('standar.store') }}" method="POST">
+            <h2 id="modalTitle" class="text-center mb-4">Tambah Standar</h2>
+            <form id="standarForm" action="{{ route('standar.store') }}" method="POST">
                 @csrf
+                <input type="hidden" id="methodField" name="_method" value="POST">
 
-                <!-- No Urut (Readonly) -->
+                <!-- No Urut (Editable) -->
                 <div class="mb-4">
                     <label for="no_urut" class="block text-sm font-medium text-gray-700">No Urut</label>
-                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" readonly tabindex="-1"
-                        class="form-control" required>
+                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" class="form-control"
+                        required>
                 </div>
 
                 <!-- Hidden Prodi ID -->
@@ -95,7 +104,7 @@
                 </div>
 
                 <div>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" id="submitBtn" class="btn btn-success">
                         Tambah Standar
                     </button>
                 </div>
@@ -113,17 +122,63 @@
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
 
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
 
     <!-- Script Modal -->
     <script>
-        function openModal() {
+        function openModal(mode = 'create', id = null, nama_standar = '', no_urut = '') {
             document.getElementById('tambahDataModal').style.display = 'block';
+
+            if (mode === 'edit') {
+                document.getElementById('modalTitle').innerText = 'Edit Standar';
+                document.getElementById('submitBtn').innerText = 'Update Standar';
+
+                // Update form action and method for editing
+                document.getElementById('standarForm').action = '/standar/' + id;
+                document.getElementById('methodField').value = 'PUT'; // Ubah method menjadi PUT untuk update
+
+                // Set the current data in the form fields
+                document.getElementById('nama_standar').value = nama_standar;
+                document.getElementById('no_urut').value = no_urut; // Set the correct no_urut value
+            } else {
+                document.getElementById('modalTitle').innerText = 'Tambah Standar';
+                document.getElementById('submitBtn').innerText = 'Tambah Standar';
+
+                // Reset form action and method for creating
+                document.getElementById('standarForm').action = '{{ route('standar.store') }}';
+                document.getElementById('methodField').value = 'POST'; // Set method to POST
+
+                // Clear the form fields
+                document.getElementById('nama_standar').value = '';
+                document.getElementById('no_urut').value = '{{ $nextNumber }}'; // Set the next number for new entry
+            }
         }
 
         function closeModal() {
             document.getElementById('tambahDataModal').style.display = 'none';
+
+
+        }
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda tidak dapat mengembalikan data yang telah dihapus!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
         }
     </script>
 @endpush
