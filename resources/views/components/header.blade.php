@@ -3,7 +3,6 @@
     <form class="form-inline mr-auto">
         <ul class="navbar-nav mr-3">
             <li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg"><i class="fas fa-bars"></i></a></li>
-            <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"><i class="fas fa-search"></i></a></li>
         </ul>
 
         <!-- Tautan ke halaman lain -->
@@ -15,7 +14,7 @@
                 <a href="" class="nav-link">Berkas</a>
             </li>
             <li class="nav-item">
-                <a href="" class="nav-link">Master</a>
+                <a href="master" class="nav-link">Master</a>
             </li>
             <li class="nav-item">
                 <a href="" class="nav-link">Resume</a>

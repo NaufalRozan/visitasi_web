@@ -21,4 +21,9 @@ class Prodi extends Model
     {
         return $this->belongsTo(Fakultas::class);
     }
+
+    public function akreditasi()
+    {
+        return $this->hasOne(Akreditasi::class);
+    }
 }
