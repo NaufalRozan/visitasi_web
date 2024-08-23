@@ -15,21 +15,25 @@
                 <h1>Standar</h1>
             </div>
 
-            <!-- Dropdown Pemilihan Fakultas dan Prodi -->
+            <!-- Dropdown Pemilihan Fakultas, Prodi, dan Standar -->
             <div class="section-body">
-                <form>
-                    <div class="form-group">
-                        <label for="fakultas">Fakultas</label>
-                        <select name="fakultas_id" id="fakultas" class="form-control" disabled>
-                            <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
-                        </select>
-                    </div>
+                <form method="GET" action="{{ route('substandar.index') }}">
+                    <div class="form-group d-flex justify-content-between">
+                        <!-- Kolom Kiri -->
+                        <div class="w-50 pr-2">
+                            <label for="fakultas">Fakultas</label>
+                            <select name="fakultas_id" id="fakultas" class="form-control" disabled>
+                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="prodi">Program Studi</label>
-                        <select name="prodi_id" id="prodi" class="form-control" disabled>
-                            <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
-                        </select>
+                        <!-- Kolom Kanan -->
+                        <div class="w-50 pl-2">
+                            <label for="prodi">Program Studi</label>
+                            <select name="prodi_id" id="prodi" class="form-control" disabled>
+                                <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
