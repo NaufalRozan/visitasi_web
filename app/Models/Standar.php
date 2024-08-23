@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Standar extends Model
 {
     public $timestamps = false;
@@ -13,5 +14,10 @@ class Standar extends Model
     public function akreditasi()
     {
         return $this->belongsTo(Akreditasi::class);
+    }
+
+    public function substandars()
+    {
+        return $this->hasMany(Substandar::class);
     }
 }

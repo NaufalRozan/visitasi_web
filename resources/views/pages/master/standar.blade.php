@@ -63,7 +63,6 @@
                                         @csrf
                                         @method('DELETE')
                                     </form>
-
                                 </td>
                             </tr>
                         @endforeach
@@ -161,8 +160,6 @@
 
         function closeModal() {
             document.getElementById('tambahDataModal').style.display = 'none';
-
-
         }
     </script>
 @endpush

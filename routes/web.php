@@ -4,6 +4,7 @@ use App\Http\Controllers\ProdiLoginController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StandarController;
+use App\Http\Controllers\SubstandarController;
 
 Route::get('/', [ProdiLoginController::class, 'index'])->name('home'); // Perbarui route untuk halaman awal
 
@@ -22,9 +23,11 @@ Route::middleware('auth')->group(function () {
     })->name('standar');
 
 
-
     // Standar Routes (CRUD untuk Standar)
     Route::resource('standar', StandarController::class);
+
+    // Substandar Routes (CRUD untuk Substandar)
+    Route::resource('substandar', SubstandarController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
