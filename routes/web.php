@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DetailController;
 use App\Http\Controllers\ProdiLoginController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,9 @@ Route::middleware('auth')->group(function () {
 
     // Substandar Routes (CRUD untuk Substandar)
     Route::resource('substandar', SubstandarController::class);
+
+    // Detail Routes (CRUD untuk Detail)
+    Route::resource('detail', DetailController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

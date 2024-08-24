@@ -16,4 +16,9 @@ class Substandar extends Model
     {
         return $this->belongsTo(Standar::class);
     }
+
+    public function details()
+    {
+        return $this->hasMany(Detail::class);
+    }
 }

@@ -16,7 +16,7 @@
                     <span>Substandar</span></a>
             </li>
             <li class="nav-item">
-                <a href="" class="nav-link"><i class="fas fa-book"></i>
+                <a href="detail" class="nav-link"><i class="fas fa-book"></i>
                     <span>Detail</span></a>
             </li>
         </ul>
