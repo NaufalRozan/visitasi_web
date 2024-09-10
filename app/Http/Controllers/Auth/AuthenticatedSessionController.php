@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Models\Prodi;
-
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -23,6 +23,9 @@ class AuthenticatedSessionController extends Controller
         try {
             $request->authenticate();
 
+            // Simpan prodi_id ke dalam session
+            session(['prodi_id' => $request->prodi_id]);
+
             $request->session()->regenerate();
 
             return redirect()->intended(route('dashboard'));
@@ -35,6 +38,9 @@ class AuthenticatedSessionController extends Controller
                 ->withInput($request->only('email', 'prodi_id'));
         }
     }
+
+
+
 
     public function destroy(Request $request): RedirectResponse
     {

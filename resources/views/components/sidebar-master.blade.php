@@ -1,19 +1,27 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
+        @php
+            $prodi_id = session('prodi_id');
+            $prodi = \App\Models\Prodi::find($prodi_id);
+        @endphp
         <div class="sidebar-brand">
-            <a>{{ Auth::user()->prodi->nama_prodi }}</a> <!-- Menampilkan nama prodi -->
+            <a>{{ $prodi ? $prodi->nama_prodi : 'Prodi Tidak Ditemukan' }}</a> <!-- Menampilkan nama prodi -->
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="home">{{ substr(Auth::user()->prodi->nama_prodi, 0, 3) }}</a> <!-- Singkatan prodi -->
+            <a href="home">{{ $prodi ? substr($prodi->nama_prodi, 0, 3) : 'Prodi' }}</a> <!-- Singkatan prodi -->
         </div>
         <ul class="sidebar-menu">
             <li class="nav-item">
+                <a href="akreditasi" class="nav-link"><i class="fas fa-book"></i>
+                    <span>Akreditasi</span></a>
+            </li>
+            <li class="nav-item">
                 <a href="standar" class="nav-link"><i class="fas fa-book"></i>
-                    <span>Standar</span></a>
+                    <span>Bagian</span></a>
             </li>
             <li class="nav-item">
                 <a href="substandar" class="nav-link"><i class="fas fa-book"></i>
-                    <span>Substandar</span></a>
+                    <span>Sub-Bagian</span></a>
             </li>
             <li class="nav-item">
                 <a href="detail" class="nav-link"><i class="fas fa-book"></i>

@@ -24,12 +24,12 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'prodi_id'
     ];
-    public function prodi()
+    public function prodis()
     {
-        return $this->belongsTo(Prodi::class, 'prodi_id');
+        return $this->belongsToMany(Prodi::class, 'users_prodi', 'user_id', 'prodi_id');
     }
+
 
     /**
      * The attributes that should be hidden for serialization.

@@ -7,7 +7,6 @@
     <title>Prodi Login</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        /* Pastikan body memenuhi seluruh layar */
         body {
             margin: 0;
             height: 100%;
@@ -25,7 +24,6 @@
             z-index: -1;
         }
 
-        /* Style untuk modal */
         .modal {
             display: none;
             position: fixed;
@@ -63,24 +61,19 @@
             cursor: pointer;
         }
 
-        /* Alert styling */
         .alert {
             padding: 20px;
-            background-color: #f44336;
-            color: white;
             margin-bottom: 15px;
+            color: white;
+            border-radius: 4px;
         }
 
-        .alert.success {
+        .alert-success {
             background-color: #4CAF50;
         }
 
-        .alert.info {
-            background-color: #2196F3;
-        }
-
-        .alert.warning {
-            background-color: #ff9800;
+        .alert-danger {
+            background-color: #f44336;
         }
 
         .closebtn {
@@ -101,18 +94,22 @@
 </head>
 
 <body>
-    <!-- Background tetap pada tempatnya dan tidak scroll -->
     <div class="bg-cover" style="background-image: url('{{ Vite::asset('resources/images/background.jpg') }}');"></div>
 
-    <!-- Alert jika ada error -->
+    @if (session('success'))
+        <div class="alert alert-success">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            {{ session('success') }}
+        </div>
+    @endif
+
     @if ($errors->any())
-        <div class="alert">
+        <div class="alert alert-danger">
             <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
             {{ $errors->first() }}
         </div>
     @endif
 
-    <!-- Konten di atas background yang bisa di-scroll -->
     <div class="p-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-center px-2 mx-auto">
             @foreach ($prodis as $prodi)
@@ -123,7 +120,6 @@
         </div>
     </div>
 
-    <!-- Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>

@@ -22,8 +22,13 @@ class Prodi extends Model
         return $this->belongsTo(Fakultas::class);
     }
 
-    public function akreditasi()
+    public function akreditasis()
     {
-        return $this->hasOne(Akreditasi::class);
+        return $this->hasMany(Akreditasi::class);
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'users_prodi', 'prodi_id', 'user_id');
     }
 }

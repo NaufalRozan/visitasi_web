@@ -11,7 +11,7 @@
                 <a href="dashboard" class="nav-link">Home</a>
             </li>
             <li class="nav-item">
-                <a href="" class="nav-link">Berkas</a>
+                <a href="berkas" class="nav-link">Berkas</a>
             </li>
             <li class="nav-item">
                 <a href="master" class="nav-link">Master</a>

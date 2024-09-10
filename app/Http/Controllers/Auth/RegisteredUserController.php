@@ -21,7 +21,6 @@ class RegisteredUserController extends Controller
     public function create(): View
     {
         $prodis = Prodi::all();
-
         return view('auth.register', ['prodis' => $prodis]);
     }
 
@@ -34,23 +33,25 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'prodi' => ['required', 'exists:prodi,id'], // Validasi untuk prodi
+            'prodi' => ['required', 'array'], // Pastikan prodi adalah array untuk multi select
+            'prodi.*' => ['exists:prodi,id'], // Validasi setiap prodi yang dipilih
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'prodi_id' => $request->prodi,
             'role' => 'member',
         ]);
 
+        // Simpan relasi user dan prodi
+        $user->prodis()->sync($request->prodi);
+
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // Redirect ke halaman login dengan pesan sukses
+        return redirect()->route('login')->with('success', 'Registrasi berhasil. Silakan login.');
     }
 }

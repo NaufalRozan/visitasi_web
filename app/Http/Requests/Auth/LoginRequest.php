@@ -27,9 +27,9 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-            'prodi_id' => ['required', 'exists:prodi,id'], // Validasi prodi_id
+            'email' => 'required|email',
+            'password' => 'required',
+            'prodi_id' => 'required|exists:prodi,id',
         ];
     }
 
@@ -42,21 +42,20 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
+        $credentials = $this->only('email', 'password');
+        $prodi_id = $this->input('prodi_id');
+
+        // Check if the user belongs to the selected prodi
+        if (Auth::attempt($credentials) && Auth::user()->prodis->contains($prodi_id)) {
+            return;
         }
 
-        // Validasi prodi_id setelah login berhasil
-        $user = Auth::user();
-        if ($user->prodi_id != $this->prodi_id) {
-            Auth::logout();
-            session()->flash('error', 'Prodi yang Anda pilih tidak sesuai dengan akun Anda.');
-            throw ValidationException::withMessages([
-                'prodi_id' => 'Prodi yang Anda pilih tidak sesuai dengan akun Anda.',
-            ]);
-        }
+        Auth::logout();
+
+        throw ValidationException::withMessages([
+            'email' => __('auth.failed'),
+            'prodi_id' => 'Prodi tidak sesuai dengan akun Anda.',
+        ]);
     }
 
     /**

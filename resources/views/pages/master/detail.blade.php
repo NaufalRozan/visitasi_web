@@ -9,7 +9,7 @@
                 <h1>Detail</h1>
             </div>
 
-            <!-- Dropdown Pemilihan Fakultas, Prodi, dan Standar -->
+            <!-- Dropdown Pemilihan Fakultas, Prodi, Akreditasi, Standar, dan Substandar -->
             <div class="section-body">
                 <form method="GET" action="{{ route('detail.index') }}">
                     <div class="form-group d-flex justify-content-between">
@@ -17,7 +17,11 @@
                         <div class="w-50 pr-2">
                             <label for="fakultas">Fakultas</label>
                             <select name="fakultas_id" id="fakultas" class="form-control" disabled>
-                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                                @if ($fakultas)
+                                    <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                                @else
+                                    <option value="">Fakultas tidak ditemukan</option>
+                                @endif
                             </select>
                         </div>
 
@@ -25,17 +29,35 @@
                         <div class="w-50 pl-2">
                             <label for="prodi">Program Studi</label>
                             <select name="prodi_id" id="prodi" class="form-control" disabled>
-                                <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                                @if ($prodi)
+                                    <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                                @else
+                                    <option value="">Prodi tidak ditemukan</option>
+                                @endif
                             </select>
                         </div>
                     </div>
 
+                    <!-- Dropdown untuk Akreditasi -->
+                    <div class="form-group">
+                        <label for="akreditasi">Akreditasi</label>
+                        <select name="akreditasi_id" id="akreditasi" class="form-control" onchange="this.form.submit()">
+                            <option value="">Pilih Akreditasi</option>
+                            @foreach ($akreditasis as $akreditasi)
+                                <option value="{{ $akreditasi->id }}"
+                                    {{ request('akreditasi_id') == $akreditasi->id ? 'selected' : '' }}>
+                                    {{ $akreditasi->nama_akreditasi }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Dropdown untuk Standar -->
                     <div class="form-group d-flex justify-content-between">
-                        <!-- Kolom Kiri -->
                         <div class="w-50 pr-2">
-                            <label for="standar">Standar</label>
+                            <label for="standar">Bagian</label>
                             <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
-                                <option value="">Pilih Standar</option>
+                                <option value="">Pilih Bagian</option>
                                 @foreach ($standars as $standar)
                                     <option value="{{ $standar->id }}"
                                         {{ request('standar_id') == $standar->id ? 'selected' : '' }}>
@@ -46,10 +68,10 @@
                         </div>
 
                         <!-- Kolom Kanan -->
-                        <div class="w-50 pr-2">
-                            <label for="substandar">SubStandar</label>
+                        <div class="w-50 pl-2">
+                            <label for="substandar">Sub-Bagian</label>
                             <select name="substandar_id" id="substandar" class="form-control" onchange="this.form.submit()">
-                                <option value="">Pilih SubStandar</option>
+                                <option value="">Pilih Sub-Bagian</option>
                                 @foreach ($substandars as $substandar)
                                     <option value="{{ $substandar->id }}"
                                         {{ request('substandar_id') == $substandar->id ? 'selected' : '' }}>
@@ -68,10 +90,11 @@
                     <button class="btn btn-success mb-3" onclick="openModal()">Tambah Data</button>
                 @endif
 
-                <!-- Tabel Substandar -->
+                <!-- Tabel Detail -->
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                            <th>Drag</th>
                             <th>No</th>
                             <th>Nama Detail</th>
                             <th>Action</th>
@@ -80,11 +103,12 @@
                     <tbody id="detailTableBody">
                         @if ($details->isEmpty())
                             <tr>
-                                <td colspan="3" class="text-center">Tidak ada data detail yang ditemukan.</td>
+                                <td colspan="4" class="text-center">Tidak ada data detail yang ditemukan.</td>
                             </tr>
                         @else
                             @foreach ($details as $detail)
-                                <tr>
+                                <tr data-id="{{ $detail->id }}">
+                                    <td><i class="fas fa-bars handle"></i></td>
                                     <td>{{ $detail->no_urut }}</td>
                                     <td>{{ $detail->nama_detail }}</td>
                                     <td>
@@ -121,10 +145,11 @@
             <form id="detailForm" action="{{ route('detail.store') }}" method="POST">
                 @csrf
                 <input type="hidden" id="methodField" name="_method" value="POST">
+                <input type="hidden" name="standar_id" value="{{ request('standar_id') }}">
                 <input type="hidden" name="substandar_id" value="{{ request('substandar_id') }}">
-                <!-- Pastikan substandar_id tersimpan -->
+                <input type="hidden" name="akreditasi_id" value="{{ request('akreditasi_id') }}">
 
-                <!-- No Urut (Editable) -->
+                <!-- No Urut -->
                 <div class="mb-4">
                     <label for="no_urut" class="block text-sm font-medium text-gray-700">No Urut</label>
                     <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" class="form-control"
@@ -148,11 +173,43 @@
 @endsection
 
 @push('scripts')
+    <!-- Tambahkan SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
-        // Pastikan substandar_id diset ulang saat standar_id berubah
-        document.getElementById('standar').addEventListener('change', function() {
-            document.getElementById('substandar').value = ''; // Reset dropdown substandar
-            document.getElementById('substandar').dispatchEvent(new Event('change')); // Submit form
+        var el = document.getElementById('detailTableBody');
+        var sortable = Sortable.create(el, {
+            handle: '.handle',
+            animation: 150,
+            onEnd: function(evt) {
+                var order = [];
+                $('#detailTableBody tr').each(function(index, element) {
+                    order.push({
+                        id: $(element).data('id'),
+                        no_urut: index + 1
+                    });
+
+                    // Update no_urut langsung pada tabel setelah drag
+                    $(element).find('td:eq(1)').text(index + 1);
+                });
+
+                // Kirim urutan baru ke server
+                $.ajax({
+                    url: "{{ route('detail.updateOrder') }}",
+                    method: 'POST',
+                    data: {
+                        order: order,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('Order updated successfully');
+                    },
+                    error: function(response) {
+                        console.error('Error updating order');
+                    }
+                });
+            }
         });
 
         function openModal(mode = 'create', id = null, nama_detail = '', no_urut = '') {

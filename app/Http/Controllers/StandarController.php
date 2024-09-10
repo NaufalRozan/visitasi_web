@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Akreditasi;
 use App\Models\Standar;
 use App\Models\Prodi;
 use Illuminate\Http\Request;
@@ -12,26 +13,44 @@ class StandarController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $prodi = $user->prodi;
+
+        // Ambil prodi_id dari session
+        $prodi_id = session('prodi_id');
+
+        // Pastikan prodi_id ada di session
+        if (!$prodi_id) {
+            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+        }
+
+        // Ambil prodi yang sesuai dengan prodi_id dari session
+        $prodi = Prodi::find($prodi_id);
+
+        // Pastikan prodi ditemukan
+        if (!$prodi) {
+            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+        }
+
+        // Ambil fakultas dari prodi
         $fakultas = $prodi->fakultas;
 
-        // Ambil data standar berdasarkan prodi_id dari user yang login
-        $standars = Standar::whereHas('akreditasi', function ($query) use ($prodi) {
-            $query->where('prodi_id', $prodi->id);
-        })->get();
+        // Ambil akreditasi aktif terkait prodi
+        $akreditasis = $prodi->akreditasis()->get();
 
-        // Ambil no_urut terakhir dan tentukan no_urut berikutnya
-        $lastNumber = Standar::whereHas('akreditasi', function ($query) use ($prodi) {
-            $query->where('prodi_id', $prodi->id);
-        })->max('no_urut');
+        // Ambil data standar hanya jika akreditasi_id dipilih
+        $standars = collect(); // Inisialisasi sebagai collection kosong
+        if ($request->has('akreditasi_id')) {
+            $standars = Standar::where('akreditasi_id', $request->akreditasi_id)
+                ->orderBy('no_urut', 'asc')
+                ->get();
+        }
 
+        // Tentukan nomor urut berikutnya
+        $lastNumber = Standar::where('akreditasi_id', $request->akreditasi_id)->max('no_urut');
         $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-        // Ambil semua Prodi untuk dropdown
-        $prodis = Prodi::where('fakultas_id', $fakultas->id)->get();
-
-        return view('pages.master.standar', compact('fakultas', 'prodi', 'standars', 'nextNumber', 'prodis'));
+        return view('pages.master.standar', compact('fakultas', 'prodi', 'standars', 'nextNumber', 'akreditasis'));
     }
+
 
     public function store(Request $request)
     {
@@ -39,26 +58,32 @@ class StandarController extends Controller
         $request->validate([
             'no_urut' => 'required|integer',
             'nama_standar' => 'required|string|max:255',
-            'prodi_id' => 'required|exists:prodi,id', // Validasi prodi_id
+            'akreditasi_id' => 'required|exists:akreditasi,id', // Validasi akreditasi_id
         ]);
-
-        // Ambil akreditasi_id berdasarkan prodi_id
-        $prodi = Prodi::find($request->prodi_id);
-        $akreditasi = $prodi->akreditasi;
-
-        if (!$akreditasi) {
-            return redirect()->back()->withErrors('Akreditasi untuk prodi yang dipilih tidak ditemukan.');
-        }
 
         // Simpan data standar baru dengan nomor urut dari input user
         Standar::create([
             'no_urut' => $request->no_urut,
             'nama_standar' => $request->nama_standar,
-            'akreditasi_id' => $akreditasi->id,
+            'akreditasi_id' => $request->akreditasi_id,
         ]);
 
-        return redirect()->route('standar.index')->with('success', 'Standar berhasil ditambahkan!');
+        return redirect()->route('standar.index', ['akreditasi_id' => $request->akreditasi_id])->with('success', 'Standar berhasil ditambahkan!');
     }
+
+    public function updateOrder(Request $request)
+    {
+        $order = $request->order;
+
+        foreach ($order as $item) {
+            $standar = Standar::find($item['id']);
+            $standar->no_urut = $item['no_urut'];
+            $standar->save();
+        }
+
+        return response()->json(['success' => true]);
+    }
+
 
 
     public function update(Request $request, Standar $standar)
@@ -73,15 +98,14 @@ class StandarController extends Controller
             'nama_standar' => $request->nama_standar,
         ]);
 
-        return redirect()->route('standar.index')->with('success', 'Standar berhasil diperbarui!');
+        return redirect()->route('standar.index', ['akreditasi_id' => $request->akreditasi_id])->with('success', 'Standar berhasil diperbarui!');
     }
-
-
 
     public function destroy(Standar $standar)
     {
+        $akreditasi_id = $standar->akreditasi_id;
         $standar->delete();
 
-        return redirect()->route('standar.index')->with('success', 'Standar berhasil dihapus!');
+        return redirect()->route('standar.index', ['akreditasi_id' => $akreditasi_id])->with('success', 'Standar berhasil dihapus!');
     }
 }

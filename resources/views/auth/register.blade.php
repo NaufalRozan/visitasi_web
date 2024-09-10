@@ -41,15 +41,17 @@
         <!-- Prodi -->
         <div class="mt-4">
             <x-input-label for="prodi" :value="__('Prodi')" />
-            <select id="prodi" name="prodi"
-                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 @foreach ($prodis as $prodi)
-                    <option value="{{ $prodi['id'] }}">{{ $prodi['nama_prodi'] }}</option>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="prodi[]" value="{{ $prodi['id'] }}"
+                            class="form-checkbox h-5 w-5 text-indigo-600">
+                        <span class="ml-2 text-gray-700">{{ $prodi['nama_prodi'] }}</span>
+                    </label>
                 @endforeach
-            </select>
+            </div>
             <x-input-error :messages="$errors->get('prodi')" class="mt-2" />
         </div>
-
 
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"

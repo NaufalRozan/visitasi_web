@@ -1,29 +1,27 @@
 @extends('layouts.app-master')
 
-@section('title', 'General Dashboard')
-
-@push('style')
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
-@endpush
+@section('title', 'Bagian Dashboard')
 
 @section('main')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Standar</h1>
+                <h1>Bagian</h1>
             </div>
 
-            <!-- Dropdown Pemilihan Fakultas, Prodi, dan Standar -->
+            <!-- Dropdown Pemilihan Fakultas, Prodi, dan Akreditasi -->
             <div class="section-body">
-                <form method="GET" action="{{ route('substandar.index') }}">
+                <form method="GET" action="{{ route('standar.index') }}">
                     <div class="form-group d-flex justify-content-between">
                         <!-- Kolom Kiri -->
                         <div class="w-50 pr-2">
                             <label for="fakultas">Fakultas</label>
                             <select name="fakultas_id" id="fakultas" class="form-control" disabled>
-                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                                @if ($fakultas)
+                                    <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                                @else
+                                    <option value="">Fakultas tidak ditemukan</option>
+                                @endif
                             </select>
                         </div>
 
@@ -31,45 +29,72 @@
                         <div class="w-50 pl-2">
                             <label for="prodi">Program Studi</label>
                             <select name="prodi_id" id="prodi" class="form-control" disabled>
-                                <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                                @if ($prodi)
+                                    <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                                @else
+                                    <option value="">Prodi tidak ditemukan</option>
+                                @endif
                             </select>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="akreditasi">Akreditasi</label>
+                        <select name="akreditasi_id" id="akreditasi" class="form-control" onchange="this.form.submit()">
+                            <option value="">Pilih Akreditasi</option>
+                            @foreach ($akreditasis as $akreditasi)
+                                <option value="{{ $akreditasi->id }}"
+                                    {{ request('akreditasi_id') == $akreditasi->id ? 'selected' : '' }}>
+                                    {{ $akreditasi->nama_akreditasi }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </form>
             </div>
 
             <!-- Tombol Tambah Data -->
             <div class="section-body mt-4">
-                <button class="btn btn-success mb-3" onclick="openModal()">Tambah Data</button>
+                @if (request('akreditasi_id'))
+                    <button class="btn btn-success mb-3" onclick="openModal()">Tambah Data</button>
+                @endif
 
                 <!-- Tabel Standar -->
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                            <th>Drag</th>
                             <th>No</th>
-                            <th>Nama Standar</th>
+                            <th>Nama Bagian</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="standarTableBody">
-                        @foreach ($standars as $standar)
+                        @if ($standars->isEmpty())
                             <tr>
-                                <td>{{ $standar->no_urut }}</td>
-                                <td>{{ $standar->nama_standar }}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm"
-                                        onclick="openModal('edit', {{ $standar->id }}, '{{ $standar->nama_standar }}', {{ $standar->no_urut }})">Edit</button>
-                                    <button class="btn btn-danger btn-sm"
-                                        onclick="confirmDelete({{ $standar->id }})">Delete</button>
-                                    <form id="delete-form-{{ $standar->id }}"
-                                        action="{{ route('standar.destroy', $standar->id) }}" method="POST"
-                                        style="display: none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </td>
+                                <td colspan="4" class="text-center">Tidak ada data standar yang ditemukan.</td>
                             </tr>
-                        @endforeach
+                        @else
+                            @foreach ($standars as $standar)
+                                <tr data-id="{{ $standar->id }}">
+                                    <td><i class="fas fa-bars handle"></i></td>
+                                    <td>{{ $standar->no_urut }}</td>
+                                    <td>{{ $standar->nama_standar }}</td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm"
+                                            onclick="openModal('edit', {{ $standar->id }}, '{{ $standar->nama_standar }}', {{ $standar->no_urut }})">Edit</button>
+                                        <button class="btn btn-danger btn-sm"
+                                            onclick="confirmDelete({{ $standar->id }})">Delete</button>
+                                        <form id="delete-form-{{ $standar->id }}"
+                                            action="{{ route('standar.destroy', $standar->id) }}" method="POST"
+                                            style="display: none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -89,6 +114,7 @@
             <form id="standarForm" action="{{ route('standar.store') }}" method="POST">
                 @csrf
                 <input type="hidden" id="methodField" name="_method" value="POST">
+                <input type="hidden" name="akreditasi_id" value="{{ request('akreditasi_id') }}">
 
                 <!-- No Urut (Editable) -->
                 <div class="mb-4">
@@ -96,12 +122,6 @@
                     <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" class="form-control"
                         required>
                 </div>
-
-                <!-- Hidden Prodi ID -->
-                <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
-
-                <!-- Hidden Akreditasi ID -->
-                <input type="hidden" name="akreditasi_id" id="akreditasi_id" value="{{ $prodi->akreditasi->id }}">
 
                 <!-- Nama Standar -->
                 <div class="mb-4">
@@ -120,20 +140,45 @@
 @endsection
 
 @push('scripts')
-    <!-- JS Libraies -->
-    <script src="{{ asset('library/simpleweather/jquery.simpleWeather.min.js') }}"></script>
-    <script src="{{ asset('library/chart.js/dist/Chart.min.js') }}"></script>
-    <script src="{{ asset('library/jqvmap/dist/jquery.vmap.min.js') }}"></script>
-    <script src="{{ asset('library/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
-    <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
-    <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <!-- Tambahkan SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
-
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/index-0.js') }}"></script>
-
-    <!-- Script Modal -->
     <script>
+        // Inisialisasi SortableJS pada tabel
+        var el = document.getElementById('standarTableBody');
+        var sortable = Sortable.create(el, {
+            handle: '.handle',
+            animation: 150,
+            onEnd: function(evt) {
+                var order = [];
+                $('#standarTableBody tr').each(function(index, element) {
+                    order.push({
+                        id: $(element).data('id'),
+                        no_urut: index + 1
+                    });
+
+                    // Update no_urut langsung pada tabel setelah drag
+                    $(element).find('td:eq(1)').text(index + 1);
+                });
+
+                // Kirim urutan baru ke server
+                $.ajax({
+                    url: "{{ route('standar.updateOrder') }}",
+                    method: 'POST',
+                    data: {
+                        order: order,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        console.log('Order updated successfully');
+                    },
+                    error: function(response) {
+                        console.error('Error updating order');
+                    }
+                });
+            }
+        });
+
         function openModal(mode = 'create', id = null, nama_standar = '', no_urut = '') {
             document.getElementById('tambahDataModal').style.display = 'block';
 

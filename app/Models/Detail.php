@@ -12,7 +12,7 @@ class Detail extends Model
     protected $table = 'detail';
     protected $fillable = ['no_urut', 'nama_detail', 'substandar_id'];
 
-    public function standar()
+    public function substandar()
     {
         return $this->belongsTo(Substandar::class);
     }
