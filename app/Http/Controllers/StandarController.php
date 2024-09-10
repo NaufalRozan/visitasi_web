@@ -33,23 +33,30 @@ class StandarController extends Controller
         // Ambil fakultas dari prodi
         $fakultas = $prodi->fakultas;
 
-        // Ambil akreditasi aktif terkait prodi
+        // Ambil semua akreditasi terkait prodi
         $akreditasis = $prodi->akreditasis()->get();
+
+        // Ambil akreditasi aktif (status = 'aktif')
+        $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
+
+        // Jika ada request akreditasi_id gunakan, jika tidak pilih yang aktif
+        $selected_akreditasi_id = $request->input('akreditasi_id', $akreditasi_aktif ? $akreditasi_aktif->id : null);
 
         // Ambil data standar hanya jika akreditasi_id dipilih
         $standars = collect(); // Inisialisasi sebagai collection kosong
-        if ($request->has('akreditasi_id')) {
-            $standars = Standar::where('akreditasi_id', $request->akreditasi_id)
+        if ($selected_akreditasi_id) {
+            $standars = Standar::where('akreditasi_id', $selected_akreditasi_id)
                 ->orderBy('no_urut', 'asc')
                 ->get();
         }
 
         // Tentukan nomor urut berikutnya
-        $lastNumber = Standar::where('akreditasi_id', $request->akreditasi_id)->max('no_urut');
+        $lastNumber = Standar::where('akreditasi_id', $selected_akreditasi_id)->max('no_urut');
         $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-        return view('pages.master.standar', compact('fakultas', 'prodi', 'standars', 'nextNumber', 'akreditasis'));
+        return view('pages.master.standar', compact('fakultas', 'prodi', 'standars', 'nextNumber', 'akreditasis', 'selected_akreditasi_id'));
     }
+
 
 
     public function store(Request $request)

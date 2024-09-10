@@ -44,7 +44,7 @@
                             <option value="">Pilih Akreditasi</option>
                             @foreach ($akreditasis as $akreditasi)
                                 <option value="{{ $akreditasi->id }}"
-                                    {{ request('akreditasi_id') == $akreditasi->id ? 'selected' : '' }}>
+                                    {{ $selected_akreditasi_id == $akreditasi->id ? 'selected' : '' }}>
                                     {{ $akreditasi->nama_akreditasi }}
                                 </option>
                             @endforeach

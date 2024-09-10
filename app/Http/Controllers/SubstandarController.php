@@ -38,10 +38,15 @@ class SubstandarController extends Controller
         // Ambil semua akreditasi terkait prodi
         $akreditasis = Akreditasi::where('prodi_id', $prodi->id)->get();
 
+        // Ambil akreditasi aktif (status = 'aktif')
+        $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
+
+        // Jika ada request akreditasi_id gunakan, jika tidak pilih yang aktif
+        $selectedAkreditasiId = $request->input('akreditasi_id', $akreditasi_aktif ? $akreditasi_aktif->id : null);
+
         // Filter standar berdasarkan akreditasi yang dipilih
         $standars = collect();
-        if ($request->has('akreditasi_id')) {
-            $selectedAkreditasiId = $request->akreditasi_id;
+        if ($selectedAkreditasiId) {
             $standars = Standar::where('akreditasi_id', $selectedAkreditasiId)->get();
         }
 
@@ -58,8 +63,9 @@ class SubstandarController extends Controller
         $lastNumber = Substandar::where('standar_id', $request->standar_id)->max('no_urut');
         $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-        return view('pages.master.substandar', compact('fakultas', 'prodi', 'akreditasis', 'standars', 'substandars', 'nextNumber'));
+        return view('pages.master.substandar', compact('fakultas', 'prodi', 'akreditasis', 'standars', 'substandars', 'nextNumber', 'selectedAkreditasiId'));
     }
+
 
     public function store(Request $request)
     {

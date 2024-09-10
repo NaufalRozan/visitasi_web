@@ -45,7 +45,7 @@
                             <option value="">Pilih Akreditasi</option>
                             @foreach ($akreditasis as $akreditasi)
                                 <option value="{{ $akreditasi->id }}"
-                                    {{ request('akreditasi_id') == $akreditasi->id ? 'selected' : '' }}>
+                                    {{ $selectedAkreditasiId == $akreditasi->id ? 'selected' : '' }}>
                                     {{ $akreditasi->nama_akreditasi }}
                                 </option>
                             @endforeach
@@ -173,9 +173,7 @@
 @endsection
 
 @push('scripts')
-    <!-- Tambahkan SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
         var el = document.getElementById('detailTableBody');

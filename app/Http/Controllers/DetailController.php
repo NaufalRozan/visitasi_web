@@ -32,11 +32,15 @@ class DetailController extends Controller
             return redirect()->route('login')->withErrors('Fakultas tidak ditemukan untuk prodi ini.');
         }
 
+        // Ambil akreditasi aktif
         $akreditasis = Akreditasi::where('prodi_id', $prodi->id)->get();
+        $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
+
+        // Pilih akreditasi dari request atau aktif
+        $selectedAkreditasiId = $request->input('akreditasi_id', $akreditasi_aktif ? $akreditasi_aktif->id : null);
 
         $standars = collect();
-        if ($request->has('akreditasi_id')) {
-            $selectedAkreditasiId = $request->akreditasi_id;
+        if ($selectedAkreditasiId) {
             $standars = Standar::where('akreditasi_id', $selectedAkreditasiId)->get();
         }
 
@@ -57,8 +61,9 @@ class DetailController extends Controller
         $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
         $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-        return view('pages.master.detail', compact('fakultas', 'prodi', 'akreditasis', 'standars', 'substandars', 'details', 'nextNumber'));
+        return view('pages.master.detail', compact('fakultas', 'prodi', 'akreditasis', 'standars', 'substandars', 'details', 'nextNumber', 'selectedAkreditasiId'));
     }
+
 
     public function store(Request $request)
     {
