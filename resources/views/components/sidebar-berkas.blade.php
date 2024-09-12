@@ -22,26 +22,25 @@
             <a href="home">{{ $prodi ? substr($prodi->nama_prodi, 0, 3) : 'Prodi' }}</a> <!-- Singkatan prodi -->
         </div>
         <ul class="sidebar-menu">
-            <!-- Menu lainnya -->
-
-            <!-- Loop untuk setiap Standar yang terkait dengan akreditasi aktif, urutkan berdasarkan no_urut -->
+            <!-- Loop untuk setiap Standar dan Substandar -->
             @foreach ($standars as $standar)
                 <li class="dropdown">
                     <a href="#" class="nav-link has-dropdown"><i class="fas fa-th"></i>
                         <span>{{ $standar->nama_standar }}</span></a>
                     <ul class="dropdown-menu">
                         @php
-                            // Ambil substandar terkait standar yang dipilih dan urutkan berdasarkan no_urut
+                            // Mengambil substandar yang terkait dengan standar
                             $substandars = $standar->substandars()->orderBy('no_urut')->get();
                         @endphp
                         @foreach ($substandars as $substandar)
                             <li><a class="nav-link"
-                                    href="{{ route('substandar.index', ['standar_id' => $standar->id]) }}">{{ $substandar->nama_substandar }}</a>
+                                    href="{{ route('detail.show', ['substandar_id' => $substandar->id]) }}">{{ $substandar->nama_substandar }}</a>
                             </li>
                         @endforeach
                     </ul>
                 </li>
             @endforeach
         </ul>
+
     </aside>
 </div>

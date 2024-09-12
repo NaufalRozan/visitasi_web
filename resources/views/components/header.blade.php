@@ -8,13 +8,14 @@
         <!-- Tautan ke halaman lain -->
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a href="dashboard" class="nav-link">Home</a>
+                <a href="{{ url('/dashboard') }}" class="nav-link">Home</a>
             </li>
             <li class="nav-item">
-                <a href="berkas" class="nav-link">Berkas</a>
+                <a href="{{ url('/berkas') }}" class="nav-link">Berkas</a>
             </li>
             <li class="nav-item">
-                <a href="master" class="nav-link">Master</a>
+                <a href="{{ url('/master') }}" class="nav-link">Master</a>
+
             </li>
             <li class="nav-item">
                 <a href="" class="nav-link">Resume</a>

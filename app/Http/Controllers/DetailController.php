@@ -7,6 +7,7 @@ use App\Models\Substandar;
 use App\Models\Standar;
 use App\Models\Prodi;
 use App\Models\Akreditasi;
+use App\Models\DetailItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -130,5 +131,25 @@ class DetailController extends Controller
             'standar_id' => $standar_id,
             'akreditasi_id' => $akrediatas_id
         ])->with('success', 'Detail berhasil dihapus!');
+    }
+
+    public function showDetails($substandar_id)
+    {
+        $substandar = Substandar::findOrFail($substandar_id);
+
+        // Ambil semua detail terkait substandar yang dipilih
+        $details = $substandar->details()->with('items')->get();
+
+        // Ambil semua detail terkait substandar yang dipilih
+        $details = $substandar->details()->with(['items' => function ($query) {
+            $query->orderBy('no_urut', 'asc'); // Urutkan berdasarkan no_urut
+        }])->get();
+
+        // Tentukan nomor urut berikutnya untuk setiap detail
+        foreach ($details as $detail) {
+            $detail->nextNoUrut = DetailItem::where('detail_id', $detail->id)->max('no_urut') + 1;
+        }
+
+        return view('pages.berkas.detail', compact('substandar', 'details'));
     }
 }

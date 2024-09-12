@@ -16,4 +16,9 @@ class Detail extends Model
     {
         return $this->belongsTo(Substandar::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(DetailItem::class, 'detail_id');
+    }
 }

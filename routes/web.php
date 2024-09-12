@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AkreditasiController;
 use App\Http\Controllers\DetailController;
+use App\Http\Controllers\DetailItemController;
 use App\Http\Controllers\ProdiLoginController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,16 @@ Route::middleware('auth')->group(function () {
     // Detail Routes (CRUD untuk Detail)
     Route::resource('detail', DetailController::class);
     Route::post('/detail/update-order', [DetailController::class, 'updateOrder'])->name('detail.updateOrder');
+    Route::get('/berkas/detail/{substandar_id}', [DetailController::class, 'showDetails'])->name('detail.show');
+
+    //Detail Item Routes (CRUD untuk Detail Item)
+    Route::resource('detail_item', DetailItemController::class);
+    Route::resource('detailitem', DetailItemController::class)->only(['store', 'destroy']);
+    Route::post('/detail_item', [DetailItemController::class, 'store'])->name('detail_item.store');
+    Route::get('/detail_item/download/{id}', [DetailItemController::class, 'download'])->name('detail_item.download');
+    Route::post('/detail_item/update-order', [DetailItemController::class, 'updateOrder'])->name('detail_item.updateOrder');
+    Route::get('/detail/{substandar_id}', [DetailItemController::class, 'showDetails'])->name('detail.showDetails');
+
 
     // Route ke berkas page
     Route::get('/berkas', function () {

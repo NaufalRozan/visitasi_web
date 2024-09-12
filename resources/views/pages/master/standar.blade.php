@@ -49,15 +49,17 @@
                                 </option>
                             @endforeach
                         </select>
+
                     </div>
                 </form>
             </div>
 
             <!-- Tombol Tambah Data -->
             <div class="section-body mt-4">
-                @if (request('akreditasi_id'))
+                @if (request('akreditasi_id') || $selected_akreditasi_id)
                     <button class="btn btn-success mb-3" onclick="openModal()">Tambah Data</button>
                 @endif
+
 
                 <!-- Tabel Standar -->
                 <table class="table table-bordered">
