@@ -91,43 +91,47 @@
                 @endif
 
                 <!-- Tabel Detail -->
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Drag</th>
-                            <th>No</th>
-                            <th>Nama Detail</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="detailTableBody">
-                        @if ($details->isEmpty())
-                            <tr>
-                                <td colspan="4" class="text-center">Tidak ada data detail yang ditemukan.</td>
-                            </tr>
-                        @else
-                            @foreach ($details as $detail)
-                                <tr data-id="{{ $detail->id }}">
-                                    <td><i class="fas fa-bars handle"></i></td>
-                                    <td>{{ $detail->no_urut }}</td>
-                                    <td>{{ $detail->nama_detail }}</td>
-                                    <td>
-                                        <button class="btn btn-warning btn-sm"
-                                            onclick="openModal('edit', {{ $detail->id }}, '{{ $detail->nama_detail }}', {{ $detail->no_urut }})">Edit</button>
-                                        <button class="btn btn-danger btn-sm"
-                                            onclick="confirmDelete({{ $detail->id }})">Delete</button>
-                                        <form id="delete-form-{{ $detail->id }}"
-                                            action="{{ route('detail.destroy', $detail->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                    </td>
+                <div class="card card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">Drag</th>
+                                    <th style="width: 5%">No</th>
+                                    <th style="width: 70%">Nama Detail</th>
+                                    <th style="width: 20%">Action</th>
                                 </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody id="detailTableBody">
+                                @if ($details->isEmpty())
+                                    <tr>
+                                        <td colspan="4" class="text-center">Tidak ada data detail yang ditemukan.</td>
+                                    </tr>
+                                @else
+                                    @foreach ($details as $detail)
+                                        <tr data-id="{{ $detail->id }}">
+                                            <td><i class="fas fa-bars handle"></i></td>
+                                            <td>{{ $detail->no_urut }}</td>
+                                            <td>{{ $detail->nama_detail }}</td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick="openModal('edit', {{ $detail->id }}, '{{ $detail->nama_detail }}', {{ $detail->no_urut }})">Edit</button>
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="confirmDelete({{ $detail->id }})">Delete</button>
+                                                <form id="delete-form-{{ $detail->id }}"
+                                                    action="{{ route('detail.destroy', $detail->id) }}" method="POST"
+                                                    style="display: none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

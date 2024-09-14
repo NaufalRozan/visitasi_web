@@ -75,43 +75,48 @@
                 @endif
 
                 <!-- Tabel Substandar -->
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Drag</th>
-                            <th>No</th>
-                            <th>Nama Sub-Bagian</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="substandarTableBody">
-                        @if ($substandars->isEmpty())
-                            <tr>
-                                <td colspan="4" class="text-center">Tidak ada data substandar yang ditemukan.</td>
-                            </tr>
-                        @else
-                            @foreach ($substandars as $substandar)
-                                <tr data-id="{{ $substandar->id }}">
-                                    <td><i class="fas fa-bars handle"></i></td>
-                                    <td>{{ $substandar->no_urut }}</td>
-                                    <td>{{ $substandar->nama_substandar }}</td>
-                                    <td>
-                                        <button class="btn btn-warning btn-sm"
-                                            onclick="openModal('edit', {{ $substandar->id }}, '{{ $substandar->nama_substandar }}', {{ $substandar->no_urut }})">Edit</button>
-                                        <button class="btn btn-danger btn-sm"
-                                            onclick="confirmDelete({{ $substandar->id }})">Delete</button>
-                                        <form id="delete-form-{{ $substandar->id }}"
-                                            action="{{ route('substandar.destroy', $substandar->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                    </td>
+                <div class="card card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">Drag</th>
+                                    <th style="width: 5%">No</th>
+                                    <th style="width: 70%">Nama Sub-Bagian</th>
+                                    <th style="width: 20%">Action</th>
                                 </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody id="substandarTableBody">
+                                @if ($substandars->isEmpty())
+                                    <tr>
+                                        <td colspan="4" class="text-center">Tidak ada data substandar yang ditemukan.
+                                        </td>
+                                    </tr>
+                                @else
+                                    @foreach ($substandars as $substandar)
+                                        <tr data-id="{{ $substandar->id }}">
+                                            <td><i class="fas fa-bars handle"></i></td>
+                                            <td>{{ $substandar->no_urut }}</td>
+                                            <td>{{ $substandar->nama_substandar }}</td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick="openModal('edit', {{ $substandar->id }}, '{{ $substandar->nama_substandar }}', {{ $substandar->no_urut }})">Edit</button>
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="confirmDelete({{ $substandar->id }})">Delete</button>
+                                                <form id="delete-form-{{ $substandar->id }}"
+                                                    action="{{ route('substandar.destroy', $substandar->id) }}"
+                                                    method="POST" style="display: none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

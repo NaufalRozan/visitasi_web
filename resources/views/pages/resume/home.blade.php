@@ -1,0 +1,126 @@
+@extends('layouts.app-resume')
+
+@section('title', 'Resume Dashboard')
+
+@section('main')
+    <div class="main-content">
+        <section class="section">
+            <div class="section-header">
+                <h1>Resume</h1>
+            </div>
+
+            <!-- Dropdown Pemilihan Fakultas, Prodi, dan Akreditasi -->
+            <div class="section-body">
+                <form method="GET" action="{{ route('resume.index') }}">
+                    <div class="form-group d-flex justify-content-between">
+                        <!-- Kolom Kiri: Fakultas -->
+                        <div class="w-50 pr-2">
+                            <label for="fakultas">Fakultas</label>
+                            <select name="fakultas_id" id="fakultas" class="form-control" disabled>
+                                @if ($fakultas)
+                                    <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                                @else
+                                    <option value="">Fakultas tidak ditemukan</option>
+                                @endif
+                            </select>
+                        </div>
+
+                        <!-- Kolom Tengah: Prodi -->
+                        <div class="w-50 pl-2">
+                            <label for="prodi">Program Studi</label>
+                            <select name="prodi_id" id="prodi" class="form-control" disabled>
+                                @if ($prodi)
+                                    <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                                @else
+                                    <option value="">Prodi tidak ditemukan</option>
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Akreditasi -->
+                    <div class="form-group">
+                        <label for="akreditasi">Akreditasi</label>
+                        <select name="akreditasi_id" id="akreditasi" class="form-control" onchange="this.form.submit()">
+                            <option value="">Pilih Akreditasi</option>
+                            @foreach ($akreditasis as $akreditasi)
+                                <option value="{{ $akreditasi->id }}"
+                                    {{ $selected_akreditasi_id == $akreditasi->id ? 'selected' : '' }}>
+                                    {{ $akreditasi->nama_akreditasi }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabel Resume Dokumen -->
+            @if ($standars->isNotEmpty())
+                <div class="card card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">Standar</th>
+                                    <th style="width: 10%;">Documents</th>
+                                    <th style="width: 10%;">URLs</th>
+                                    <th style="width: 10%;">Images</th>
+                                    <th style="width: 10%;">Videos</th>
+                                    <th style="width: 10%;">Total</th> <!-- Kolom Total Items -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalDocuments = 0;
+                                    $totalURLs = 0;
+                                    $totalImages = 0;
+                                    $totalVideos = 0;
+                                    $totalItems = 0; // Variabel untuk total semua item
+                                @endphp
+
+                                @foreach ($standars as $standar)
+                                    @php
+                                        $standarTotal =
+                                            $standar->document_count +
+                                            $standar->url_count +
+                                            $standar->image_count +
+                                            $standar->video_count;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $standar->nama_standar }}</td>
+                                        <td>{{ $standar->document_count }}</td>
+                                        <td>{{ $standar->url_count }}</td>
+                                        <td>{{ $standar->image_count }}</td>
+                                        <td>{{ $standar->video_count }}</td>
+                                        <td>{{ $standarTotal }}</td> <!-- Total per Standar -->
+                                    </tr>
+
+                                    @php
+                                        // Hitung total dokumen, url, image, video, dan total item
+                                        $totalDocuments += $standar->document_count;
+                                        $totalURLs += $standar->url_count;
+                                        $totalImages += $standar->image_count;
+                                        $totalVideos += $standar->video_count;
+                                        $totalItems += $standarTotal; // Total semua item dari setiap standar
+                                    @endphp
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Total</th>
+                                    <th>{{ $totalDocuments }}</th>
+                                    <th>{{ $totalURLs }}</th>
+                                    <th>{{ $totalImages }}</th>
+                                    <th>{{ $totalVideos }}</th>
+                                    <th>{{ $totalItems }}</th> <!-- Total seluruh item -->
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            @else
+                <p class="text-center">Tidak ada data yang ditemukan untuk fakultas, prodi, dan akreditasi yang dipilih.</p>
+            @endif
+        </section>
+    </div>
+@endsection

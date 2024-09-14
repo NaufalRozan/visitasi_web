@@ -20,4 +20,9 @@ class Standar extends Model
     {
         return $this->hasMany(Substandar::class);
     }
+
+    public function details()
+    {
+        return $this->hasManyThrough(Detail::class, Substandar::class, 'standar_id', 'substandar_id');
+    }
 }

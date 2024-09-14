@@ -62,43 +62,47 @@
 
 
                 <!-- Tabel Standar -->
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Drag</th>
-                            <th>No</th>
-                            <th>Nama Bagian</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="standarTableBody">
-                        @if ($standars->isEmpty())
-                            <tr>
-                                <td colspan="4" class="text-center">Tidak ada data standar yang ditemukan.</td>
-                            </tr>
-                        @else
-                            @foreach ($standars as $standar)
-                                <tr data-id="{{ $standar->id }}">
-                                    <td><i class="fas fa-bars handle"></i></td>
-                                    <td>{{ $standar->no_urut }}</td>
-                                    <td>{{ $standar->nama_standar }}</td>
-                                    <td>
-                                        <button class="btn btn-warning btn-sm"
-                                            onclick="openModal('edit', {{ $standar->id }}, '{{ $standar->nama_standar }}', {{ $standar->no_urut }})">Edit</button>
-                                        <button class="btn btn-danger btn-sm"
-                                            onclick="confirmDelete({{ $standar->id }})">Delete</button>
-                                        <form id="delete-form-{{ $standar->id }}"
-                                            action="{{ route('standar.destroy', $standar->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                    </td>
+                <div class="card card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">Drag</th>
+                                    <th style="width: 5%">No</th>
+                                    <th style="width: 70%">Nama Bagian</th>
+                                    <th style="width: 20%">Action</th>
                                 </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody id="standarTableBody">
+                                @if ($standars->isEmpty())
+                                    <tr>
+                                        <td colspan="4" class="text-center">Tidak ada data standar yang ditemukan.</td>
+                                    </tr>
+                                @else
+                                    @foreach ($standars as $standar)
+                                        <tr data-id="{{ $standar->id }}">
+                                            <td><i class="fas fa-bars handle"></i></td>
+                                            <td>{{ $standar->no_urut }}</td>
+                                            <td>{{ $standar->nama_standar }}</td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick="openModal('edit', {{ $standar->id }}, '{{ $standar->nama_standar }}', {{ $standar->no_urut }})">Edit</button>
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="confirmDelete({{ $standar->id }})">Delete</button>
+                                                <form id="delete-form-{{ $standar->id }}"
+                                                    action="{{ route('standar.destroy', $standar->id) }}" method="POST"
+                                                    style="display: none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -116,7 +120,9 @@
             <form id="standarForm" action="{{ route('standar.store') }}" method="POST">
                 @csrf
                 <input type="hidden" id="methodField" name="_method" value="POST">
-                <input type="hidden" name="akreditasi_id" value="{{ request('akreditasi_id') }}">
+
+                <!-- Hidden Input untuk menyimpan akreditasi aktif -->
+                <input type="hidden" name="akreditasi_id" value="{{ $selected_akreditasi_id }}">
 
                 <!-- No Urut (Editable) -->
                 <div class="mb-4">
@@ -137,6 +143,7 @@
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 @endsection

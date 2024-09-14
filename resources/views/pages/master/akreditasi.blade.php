@@ -35,58 +35,63 @@
                 <button class="btn btn-success mb-3" onclick="openModal()">Tambah Akreditasi</button>
 
                 <!-- Tabel Akreditasi -->
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Akreditasi</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="akreditasiTableBody">
-                        @if ($akreditasis->isEmpty())
-                            <tr>
-                                <td colspan="4" class="text-center">Tidak ada data akreditasi yang ditemukan.</td>
-                            </tr>
-                        @else
-                            @foreach ($akreditasis as $akreditasi)
+                <div class="card card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $akreditasi->nama_akreditasi }}</td>
-                                    <td>
-                                        <span
-                                            class="badge {{ $akreditasi->status == 'aktif' ? 'badge-success' : 'badge-secondary' }}">
-                                            {{ ucfirst($akreditasi->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-warning btn-sm"
-                                            onclick="openModal('edit', {{ $akreditasi->id }}, '{{ $akreditasi->nama_akreditasi }}')">Edit</button>
-                                        <button class="btn btn-danger btn-sm"
-                                            onclick="confirmDelete({{ $akreditasi->id }})">Delete</button>
-                                        @if ($akreditasi->status !== 'aktif')
-                                            <button class="btn btn-primary btn-sm"
-                                                onclick="confirmActivate({{ $akreditasi->id }})">Aktifkan</button>
-                                        @endif
-                                        <form id="delete-form-{{ $akreditasi->id }}"
-                                            action="{{ route('akreditasi.destroy', $akreditasi->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                        <form id="activate-form-{{ $akreditasi->id }}"
-                                            action="{{ route('akreditasi.activate', $akreditasi->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('PUT')
-                                        </form>
-                                    </td>
+                                    <th style="width: 5%">No</th>
+                                    <th style="width: 60%">Nama Akreditasi</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 20%">Action</th>
                                 </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody id="akreditasiTableBody">
+                                @if ($akreditasis->isEmpty())
+                                    <tr>
+                                        <td colspan="4" class="text-center">Tidak ada data akreditasi yang ditemukan.
+                                        </td>
+                                    </tr>
+                                @else
+                                    @foreach ($akreditasis as $akreditasi)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $akreditasi->nama_akreditasi }}</td>
+                                            <td>
+                                                <span
+                                                    class="badge {{ $akreditasi->status == 'aktif' ? 'badge-success' : 'badge-secondary' }}">
+                                                    {{ ucfirst($akreditasi->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick="openModal('edit', {{ $akreditasi->id }}, '{{ $akreditasi->nama_akreditasi }}')">Edit</button>
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="confirmDelete({{ $akreditasi->id }})">Delete</button>
+                                                @if ($akreditasi->status !== 'aktif')
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="confirmActivate({{ $akreditasi->id }})">Aktifkan</button>
+                                                @endif
+                                                <form id="delete-form-{{ $akreditasi->id }}"
+                                                    action="{{ route('akreditasi.destroy', $akreditasi->id) }}"
+                                                    method="POST" style="display: none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                                <form id="activate-form-{{ $akreditasi->id }}"
+                                                    action="{{ route('akreditasi.activate', $akreditasi->id) }}"
+                                                    method="POST" style="display: none;">
+                                                    @csrf
+                                                    @method('PUT')
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

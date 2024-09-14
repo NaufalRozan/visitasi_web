@@ -40,7 +40,6 @@
                                             <th style="width: 5%;">Drag</th>
                                             <th style="width: 5%;">No</th>
                                             <th style="width: 40%;">Deskripsi</th>
-                                            <!-- Lebar kolom deskripsi lebih besar -->
                                             <th style="width: 20%;">Lokasi</th>
                                             <th style="width: 10%;">Tipe</th>
                                             <th style="width: 20%;">Aksi</th>

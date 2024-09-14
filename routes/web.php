@@ -5,6 +5,7 @@ use App\Http\Controllers\DetailController;
 use App\Http\Controllers\DetailItemController;
 use App\Http\Controllers\ProdiLoginController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ResumeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StandarController;
 use App\Http\Controllers\SubstandarController;
@@ -21,9 +22,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/master', function () {
         return view('pages.master.home');
     })->name('master');
+
+    // Route ke standar page
     Route::get('/standar', function () {
         return view('pages.master.standar');
     })->name('standar');
+
+    // Route ke berkas page
+    Route::get('/berkas', function () {
+        return view('pages.berkas.home');
+    })->name('berkas');
+
+    // Route ke resume page
+    Route::get('/resume', function () {
+        return view('pages.resume.home');
+    })->name('resume');
+
 
     // Akreditasi Routes (CRUD untuk Akreditasi)
     Route::resource('akreditasi', AkreditasiController::class);
@@ -51,10 +65,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/detail/{substandar_id}', [DetailItemController::class, 'showDetails'])->name('detail.showDetails');
 
 
-    // Route ke berkas page
-    Route::get('/berkas', function () {
-        return view('pages.berkas.home');
-    })->name('berkas');
+    // Resume Routes
+    Route::resource('resume', ResumeController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

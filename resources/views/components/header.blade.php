@@ -18,7 +18,7 @@
 
             </li>
             <li class="nav-item">
-                <a href="" class="nav-link">Resume</a>
+                <a href="{{ url('/resume')}}" class="nav-link">Resume</a>
             </li>
             <li class="nav-item">
                 <a href="" class="nav-link">User</a>
