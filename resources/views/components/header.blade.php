@@ -18,11 +18,13 @@
 
             </li>
             <li class="nav-item">
-                <a href="{{ url('/resume')}}" class="nav-link">Resume</a>
+                <a href="{{ url('/resume') }}" class="nav-link">Resume</a>
             </li>
-            <li class="nav-item">
-                <a href="" class="nav-link">User</a>
-            </li>
+            @if (auth()->user()->role === 'admin')
+                <li class="nav-item">
+                    <a href="{{ url('/user') }}" class="nav-link">User</a>
+                </li>
+            @endif
         </ul>
     </form>
     <ul class="navbar-nav navbar-right">
@@ -31,18 +33,6 @@
                 <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()->name }}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <!-- Profil -->
-                <a href="" class="dropdown-item has-icon">
-                    <i class="fas fa-user"></i> Profil
-                </a>
-
-                <!-- Pengaturan -->
-                <a href="" class="dropdown-item has-icon">
-                    <i class="fas fa-cog"></i> Pengaturan
-                </a>
-
-                <!-- Divider -->
-                <div class="dropdown-divider"></div>
 
                 <!-- Logout -->
                 <a href="#" class="dropdown-item has-icon text-danger"

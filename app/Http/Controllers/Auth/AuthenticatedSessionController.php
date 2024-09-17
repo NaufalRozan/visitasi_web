@@ -28,6 +28,10 @@ class AuthenticatedSessionController extends Controller
 
             $request->session()->regenerate();
 
+            if ($request->user()->role === 'admin') {
+                return redirect('/user');
+            }
+
             return redirect()->intended(route('dashboard'));
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->route('login')

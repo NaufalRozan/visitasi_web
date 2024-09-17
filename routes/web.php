@@ -9,6 +9,7 @@ use App\Http\Controllers\ResumeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StandarController;
 use App\Http\Controllers\SubstandarController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', [ProdiLoginController::class, 'index'])->name('home'); // Perbarui route untuk halaman awal
 
@@ -77,3 +78,11 @@ Route::get('/login/{prodi}', [ProdiLoginController::class, 'showLoginForm'])->na
 Route::post('/login/{prodi}', [ProdiLoginController::class, 'login']);
 
 require __DIR__ . '/auth.php';
+
+Route::get('/user', [UserController::class, 'index'])->name('user')->middleware(['auth', 'admin']);
+
+Route::middleware('auth', 'admin')->group(function () {
+    Route::resource('user', UserController::class)->middleware(['auth', 'admin']);
+    Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
+    Route::post('/user', [UserController::class, 'store'])->name('user.store');
+});
