@@ -11,9 +11,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::orderByRaw("FIELD(role, 'Universitas', 'Fakultas', 'Prodi')")
+            ->get();
+
         return view('pages.admin.user.home', compact('users'));
     }
+
 
     public function create()
     {

@@ -13,7 +13,7 @@
         </div>
         <ul class="sidebar-menu">
             <!-- Menu lainnya -->
-            @if(auth()->user()->role == 'admin')
+            @if(auth()->user()->role == 'Universitas')
             <li class="menu-header">User Management</li>
             <li>
                 <a href="{{ route('user.create') }}" class="nav-link">

@@ -20,7 +20,7 @@
             <li class="nav-item">
                 <a href="{{ url('/resume') }}" class="nav-link">Resume</a>
             </li>
-            @if (auth()->user()->role === 'admin')
+            @if (auth()->user()->role === 'Universitas')
                 <li class="nav-item">
                     <a href="{{ url('/user') }}" class="nav-link">User</a>
                 </li>

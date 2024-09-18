@@ -32,21 +32,11 @@
                     <!-- Role Dropdown -->
                     <div class="form-group">
                         <label for="role">Role</label>
-                        <select name="role" id="role" class="form-control" required>
-                            <option value="UNIV">UNIV</option>
+                        <select name="role" id="role" class="form-control" required onchange="handleRoleChange()">
+                            <option value="">Pilih Role</option>
+                            <option value="Universitas">Universitas</option>
                             <option value="Fakultas">Fakultas</option>
                             <option value="Prodi">Prodi</option>
-                        </select>
-                    </div>
-
-                    <!-- Filter Fakultas atau Prodi -->
-                    <div class="form-group">
-                        <label for="filter_type">Pilih berdasarkan</label>
-                        <select name="filter_type" id="filter_type" class="form-control"
-                            onchange="handleFilterTypeChange()">
-                            <option value="">Pilih Filter</option>
-                            <option value="fakultas">Fakultas</option>
-                            <option value="prodi">Prodi</option>
                         </select>
                     </div>
 
@@ -58,7 +48,8 @@
                             @foreach ($fakultas as $fk)
                                 <div>
                                     <input type="checkbox" name="fakultas[]" value="{{ $fk->id }}"
-                                        onclick="selectFakultas('{{ $fk->id }}')"> {{ $fk->nama_fakultas }}
+                                        class="fakultas-checkbox" onclick="selectFakultas('{{ $fk->id }}')">
+                                    {{ $fk->nama_fakultas }}
                                 </div>
                             @endforeach
                         </div>
@@ -95,34 +86,94 @@
 
 @push('scripts')
     <script>
-        // Toggle between Fakultas and Prodi checkboxes based on filter type selection
-        function handleFilterTypeChange() {
-            var filterType = document.getElementById('filter_type').value;
+        // Handle role selection change
+        function handleRoleChange() {
+            var role = document.getElementById('role').value;
             var fakultasCheckboxes = document.getElementById('fakultas-checkboxes');
             var prodiCheckboxes = document.getElementById('prodi-checkboxes');
 
-            // Hide both by default
+            // Reset display for all checkbox groups
             fakultasCheckboxes.style.display = 'none';
             prodiCheckboxes.style.display = 'none';
 
-            // Show the appropriate checkbox group based on selection
-            if (filterType === 'fakultas') {
-                fakultasCheckboxes.style.display = 'block';
-            } else if (filterType === 'prodi') {
-                prodiCheckboxes.style.display = 'block';
+            if (role === 'Fakultas') {
+                fakultasCheckboxes.style.display = 'block'; // Show Fakultas checkboxes
+                deselectAllProdi();
+            } else if (role === 'Prodi') {
+                prodiCheckboxes.style.display = 'block'; // Show Prodi checkboxes
+                deselectAllFakultas();
+            } else if (role === 'Universitas') {
+                selectAllFakultasAndProdi(); // Select all Fakultas and Prodi
+            } else {
+                deselectAllFakultasAndProdi(); // Deselect everything
             }
         }
 
-        // Function to select all Prodi when a Fakultas is checked
-        function selectFakultas(fakultasId) {
-            // Get all checkboxes for the selected Fakultas
-            var checkboxes = document.querySelectorAll('.fakultas-' + fakultasId);
-            checkboxes.forEach(function(checkbox) {
-                checkbox.checked = !checkbox.checked; // Toggle check state
+        // Select all Fakultas and Prodi
+        function selectAllFakultasAndProdi() {
+            var fakultasCheckboxes = document.querySelectorAll('.fakultas-checkbox');
+            var prodiCheckboxes = document.querySelectorAll('.prodi-checkbox');
+
+            fakultasCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+
+            prodiCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
             });
         }
 
-        // Function to filter Fakultas list based on search input
+        // Deselect all Fakultas and Prodi
+        function deselectAllFakultasAndProdi() {
+            var fakultasCheckboxes = document.querySelectorAll('.fakultas-checkbox');
+            var prodiCheckboxes = document.querySelectorAll('.prodi-checkbox');
+
+            fakultasCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+
+            prodiCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+
+        // Deselect all Fakultas
+        function deselectAllFakultas() {
+            var fakultasCheckboxes = document.querySelectorAll('.fakultas-checkbox');
+
+            fakultasCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+
+        // Deselect all Prodi
+        function deselectAllProdi() {
+            var prodiCheckboxes = document.querySelectorAll('.prodi-checkbox');
+
+            prodiCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+
+        // When Fakultas checkbox is selected or deselected
+        function selectFakultas(fakultasId) {
+            var fakultasCheckbox = document.querySelector('.fakultas-checkbox[value="' + fakultasId + '"]');
+            var prodiCheckboxes = document.querySelectorAll('.fakultas-' + fakultasId);
+
+            if (fakultasCheckbox.checked) {
+                // Select all Prodi under the selected Fakultas
+                prodiCheckboxes.forEach(function(checkbox) {
+                    checkbox.checked = true;
+                });
+            } else {
+                // Deselect all Prodi under the deselected Fakultas
+                prodiCheckboxes.forEach(function(checkbox) {
+                    checkbox.checked = false;
+                });
+            }
+        }
+
+        // Filter Fakultas search
         document.getElementById('searchFakultas').addEventListener('input', function() {
             var searchValue = this.value.toLowerCase();
             var fakultasItems = document.querySelectorAll('#fakultasList div');
@@ -136,7 +187,7 @@
             });
         });
 
-        // Function to filter Prodi list based on search input
+        // Filter Prodi search
         document.getElementById('searchProdi').addEventListener('input', function() {
             var searchValue = this.value.toLowerCase();
             var prodiItems = document.querySelectorAll('#prodiList .fakultas-group');
