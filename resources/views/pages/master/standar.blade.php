@@ -32,7 +32,7 @@
                             <div class="w-50 pl-2" id="prodiWrapper">
                                 <label for="prodi">Program Studi</label>
                                 <select name="prodi_id" id="prodi" class="form-control" disabled required>
-                                    <option value="">Pilih Fakultas Terlebih Dahulu</option>
+                                    <option value="" disabled selected>Pilih Fakultas Terlebih Dahulu</option>
                                     @foreach ($prodis as $p)
                                         <option value="{{ $p->id }}" data-fakultas="{{ $p->fakultas_id }}"
                                             {{ request('prodi_id') == $p->id ? 'selected' : '' }}>
@@ -207,7 +207,7 @@
                 } else {
                     prodiDropdown.disabled = false;
                     var selectedFakultas = fakultasDropdown.value;
-                    prodiDropdown.innerHTML = '<option value="">Pilih Program Studi</option>';
+                    prodiDropdown.innerHTML = '<option value="" disabled selected>Pilih Program Studi</option>';
 
                     allProdiOptions.forEach(function(option) {
                         var fakultasId = option.getAttribute('data-fakultas');
