@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Akreditasi;
+use App\Models\Fakultas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Prodi;
@@ -11,39 +12,47 @@ class AkreditasiController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user(); // Ambil data user yang login
 
-        // Ambil prodi_id dari session
-        $prodi_id = session('prodi_id');
+        if ($user->role === 'Prodi') {
+            // Ambil prodi_id dari session jika user adalah Prodi
+            $prodi_id = session('prodi_id');
 
-        // Pastikan prodi_id ada di session
-        if (!$prodi_id) {
-            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+            if (!$prodi_id) {
+                return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+            }
+
+            $prodi = Prodi::find($prodi_id);
+
+            if (!$prodi) {
+                return redirect()->route('login')->withErrors('Prodi tidak ditemukan.');
+            }
+
+            $fakultas = $prodi->fakultas;
+
+            $akreditasis = Akreditasi::where('prodi_id', $prodi->id)->get();
+
+            return view('pages.master.akreditasi', compact('fakultas', 'prodi', 'akreditasis', 'user'));
+        } else {
+            // Jika user role lain selain Prodi (misalnya Universitas atau Fakultas)
+            $prodis = $user->prodis;
+            $fakultas_ids = $prodis->pluck('fakultas_id')->unique();
+            $fakultas = Fakultas::whereIn('id', $fakultas_ids)->get();
+
+            $selected_fakultas_id = $request->input('fakultas_id');
+            $selected_prodi_id = $request->input('prodi_id');
+
+            $prodi = null; // Default value null
+
+            if ($selected_prodi_id) {
+                $prodi = Prodi::find($selected_prodi_id); // Ambil prodi yang sesuai
+                $akreditasis = Akreditasi::where('prodi_id', $selected_prodi_id)->get();
+            } else {
+                $akreditasis = collect(); // Kosongkan jika belum ada prodi yang dipilih
+            }
+
+            return view('pages.master.akreditasi', compact('fakultas', 'prodis', 'akreditasis', 'user', 'prodi'));
         }
-
-        // Ambil prodi yang sesuai dengan prodi_id dari session
-        $prodi = Prodi::find($prodi_id);
-
-        // Pastikan prodi ditemukan
-        if (!$prodi) {
-            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
-        }
-
-        // Ambil fakultas dari prodi
-        $fakultas = $prodi->fakultas;
-
-        // Ambil semua akreditasi terkait prodi
-        $akreditasis = Akreditasi::where('prodi_id', $prodi->id)->get();
-
-        // Ambil no_urut terakhir dan tentukan no_urut berikutnya (jika diperlukan)
-        $lastNumber = Akreditasi::where('prodi_id', $prodi->id)->max('id'); // Contoh: gunakan id untuk urutan
-
-        $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
-
-        // Ambil semua Prodi untuk dropdown
-        $prodis = Prodi::where('fakultas_id', $fakultas->id)->get();
-
-        return view('pages.master.akreditasi', compact('fakultas', 'prodi', 'akreditasis', 'nextNumber', 'prodis'));
     }
 
     public function store(Request $request)
@@ -59,7 +68,10 @@ class AkreditasiController extends Controller
             'status' => 'tidak aktif', // Atur status default
         ]);
 
-        return redirect()->route('akreditasi.index')->with('success', 'Akreditasi berhasil ditambahkan!');
+        return redirect()->route('akreditasi.index', [
+            'prodi_id' => $request->prodi_id,
+            'fakultas_id' => Prodi::find($request->prodi_id)->fakultas_id,
+        ])->with('success', 'Akreditasi berhasil ditambahkan!');
     }
 
 
@@ -73,7 +85,13 @@ class AkreditasiController extends Controller
             'nama_akreditasi' => $request->nama_akreditasi,
         ]);
 
-        return redirect()->route('akreditasi.index')->with('success', 'Akreditasi berhasil diperbarui!');
+        return redirect()->route(
+            'akreditasi.index',
+            [
+                'prodi_id' => $akreditasi->prodi_id,
+                'fakultas_id' => Prodi::find($akreditasi->prodi_id)->fakultas_id,
+            ]
+        )->with('success', 'Akreditasi berhasil diperbarui!');
     }
 
     public function activate(Akreditasi $akreditasi)
@@ -85,7 +103,13 @@ class AkreditasiController extends Controller
         // Aktifkan akreditasi yang dipilih
         $akreditasi->update(['status' => 'aktif']);
 
-        return redirect()->route('akreditasi.index')->with('success', 'Akreditasi berhasil diaktifkan!');
+        return redirect()->route(
+            'akreditasi.index',
+            [
+                'prodi_id' => $akreditasi->prodi_id,
+                'fakultas_id' => Prodi::find($akreditasi->prodi_id)->fakultas_id,
+            ]
+        )->with('success', 'Akreditasi berhasil diaktifkan!');
     }
 
 
@@ -93,6 +117,9 @@ class AkreditasiController extends Controller
     {
         $akreditasi->delete();
 
-        return redirect()->route('akreditasi.index')->with('success', 'Akreditasi berhasil dihapus!');
+        return redirect()->route('akreditasi.index', [
+            'prodi_id' => $akreditasi->prodi_id,
+            'fakultas_id' => Prodi::find($akreditasi->prodi_id)->fakultas_id,
+        ])->with('success', 'Akreditasi berhasil dihapus!');
     }
 }

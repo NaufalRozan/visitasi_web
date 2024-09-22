@@ -11,30 +11,61 @@
 
             <!-- Dropdown Pemilihan Fakultas dan Prodi -->
             <div class="section-body">
-                <form method="GET" action="{{ route('akreditasi.index') }}">
+                <form method="GET" action="{{ route('akreditasi.index') }}" id="filterForm">
                     <div class="form-group d-flex justify-content-between">
-                        <div class="w-50 pr-2">
-                            <label for="fakultas">Fakultas</label>
-                            <select name="fakultas_id" id="fakultas" class="form-control" disabled>
-                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
-                            </select>
-                        </div>
+                        @if ($user->role !== 'Prodi')
+                            <!-- Kolom Kiri: Fakultas -->
+                            <div class="w-50 pr-2">
+                                <label for="fakultas">Fakultas</label>
+                                <select name="fakultas_id" id="fakultas" class="form-control" required>
+                                    <option value="">Pilih Fakultas</option>
+                                    @foreach ($fakultas as $f)
+                                        <option value="{{ $f->id }}"
+                                            {{ request('fakultas_id') == $f->id ? 'selected' : '' }}>
+                                            {{ $f->nama_fakultas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        <div class="w-50 pl-2">
-                            <label for="prodi">Program Studi</label>
-                            <select name="prodi_id" id="prodi" class="form-control" disabled>
-                                <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
-                            </select>
-                        </div>
+                            <!-- Kolom Kanan: Prodi -->
+                            <div class="w-50 pl-2" id="prodiWrapper">
+                                <label for="prodi">Program Studi</label>
+                                <select name="prodi_id" id="prodi" class="form-control" disabled required>
+                                    <option value="">Pilih Fakultas Terlebih Dahulu</option>
+                                    @foreach ($prodis as $p)
+                                        <option value="{{ $p->id }}" data-fakultas="{{ $p->fakultas_id }}"
+                                            {{ request('prodi_id') == $p->id ? 'selected' : '' }}>
+                                            {{ $p->nama_prodi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <!-- Untuk role Prodi, tampilkan data dari session -->
+                            <input type="hidden" name="fakultas_id" value="{{ $prodi->fakultas->id }}">
+                            <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
+                            <div class="w-50 pr-2">
+                                <label for="fakultas">Fakultas</label>
+                                <input type="text" class="form-control" value="{{ $prodi->fakultas->nama_fakultas }}"
+                                    readonly>
+                            </div>
+                            <div class="w-50 pl-2">
+                                <label for="prodi">Program Studi</label>
+                                <input type="text" class="form-control" value="{{ $prodi->nama_prodi }}" readonly>
+                            </div>
+                        @endif
                     </div>
                 </form>
             </div>
 
-            <!-- Tombol Tambah Data -->
+            <!-- Tabel Akreditasi -->
             <div class="section-body mt-4">
-                <button class="btn btn-success mb-3" onclick="openModal()">Tambah Akreditasi</button>
+                <!-- Tombol Tambah Data -->
+                @if ($user->role === 'Prodi' || $user->prodis->contains('id', request('prodi_id')))
+                    <button class="btn btn-success mb-3" onclick="openModal('create')">Tambah Data</button>
+                @endif
 
-                <!-- Tabel Akreditasi -->
                 <div class="card card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -54,7 +85,7 @@
                                     </tr>
                                 @else
                                     @foreach ($akreditasis as $akreditasi)
-                                        <tr>
+                                        <tr data-id="{{ $akreditasi->id }}">
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $akreditasi->nama_akreditasi }}</td>
                                             <td>
@@ -69,7 +100,7 @@
                                                 <button class="btn btn-danger btn-sm"
                                                     onclick="confirmDelete({{ $akreditasi->id }})">Delete</button>
                                                 @if ($akreditasi->status !== 'aktif')
-                                                    <button class="btn btn-primary btn-sm"
+                                                    <button class="btn btn-success btn-sm"
                                                         onclick="confirmActivate({{ $akreditasi->id }})">Aktifkan</button>
                                                 @endif
                                                 <form id="delete-form-{{ $akreditasi->id }}"
@@ -109,7 +140,12 @@
             <h2 id="modalTitle" class="text-center mb-4">Tambah Akreditasi</h2>
             <form id="akreditasiForm" action="{{ route('akreditasi.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
+                @if (isset($prodi) && $prodi)
+                    <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
+                @else
+                    <input type="hidden" name="prodi_id" value="">
+                @endif
+
                 <input type="hidden" id="methodField" name="_method" value="POST">
 
                 <!-- Nama Akreditasi -->
@@ -124,36 +160,64 @@
                     </button>
                 </div>
             </form>
-
         </div>
     </div>
 @endsection
 
 @push('scripts')
-    <!-- Script Modal -->
     <script>
+        // Tambahkan kode lain terkait dropdown prodi dan fakultas
+        document.addEventListener('DOMContentLoaded', function() {
+            var fakultasDropdown = document.getElementById('fakultas');
+            var prodiDropdown = document.getElementById('prodi');
+            var allProdiOptions = Array.from(prodiDropdown.options); // Simpan semua opsi program studi
+
+            function toggleProdiDropdown() {
+                if (!fakultasDropdown.value) {
+                    prodiDropdown.disabled = true;
+                    prodiDropdown.innerHTML = '<option value="">Pilih Fakultas Terlebih Dahulu</option>';
+                } else {
+                    prodiDropdown.disabled = false;
+                    var selectedFakultas = fakultasDropdown.value;
+                    prodiDropdown.innerHTML = '<option value="">Pilih Program Studi</option>';
+
+                    allProdiOptions.forEach(function(option) {
+                        var fakultasId = option.getAttribute('data-fakultas');
+                        if (fakultasId == selectedFakultas) {
+                            prodiDropdown.appendChild(option.cloneNode(true));
+                        }
+                    });
+                }
+            }
+
+            toggleProdiDropdown();
+
+            fakultasDropdown.addEventListener('change', function() {
+                toggleProdiDropdown();
+            });
+
+            prodiDropdown.addEventListener('change', function() {
+                prodiDropdown.disabled = false;
+            });
+        });
+
+        document.getElementById('prodi').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
         function openModal(mode = 'create', id = null, nama_akreditasi = '') {
             document.getElementById('tambahDataModal').style.display = 'block';
-
             if (mode === 'edit') {
                 document.getElementById('modalTitle').innerText = 'Edit Akreditasi';
                 document.getElementById('submitBtn').innerText = 'Update Akreditasi';
-
-                // Update form action and method for editing
                 document.getElementById('akreditasiForm').action = '/akreditasi/' + id;
-                document.getElementById('methodField').value = 'PUT'; // Ubah method menjadi PUT untuk update
-
-                // Set the current data in the form fields
+                document.getElementById('methodField').value = 'PUT';
                 document.getElementById('nama_akreditasi').value = nama_akreditasi;
             } else {
                 document.getElementById('modalTitle').innerText = 'Tambah Akreditasi';
                 document.getElementById('submitBtn').innerText = 'Tambah Akreditasi';
-
-                // Reset form action and method for creating
                 document.getElementById('akreditasiForm').action = '{{ route('akreditasi.store') }}';
-                document.getElementById('methodField').value = 'POST'; // Set method to POST
-
-                // Clear the form fields
+                document.getElementById('methodField').value = 'POST';
                 document.getElementById('nama_akreditasi').value = '';
             }
         }
