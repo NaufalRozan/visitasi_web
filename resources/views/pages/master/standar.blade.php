@@ -38,19 +38,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="akreditasi">Akreditasi</label>
-                        <select name="akreditasi_id" id="akreditasi" class="form-control" onchange="this.form.submit()">
-                            <option value="">Pilih Akreditasi</option>
-                            @foreach ($akreditasis as $akreditasi)
-                                <option value="{{ $akreditasi->id }}"
-                                    {{ $selected_akreditasi_id == $akreditasi->id ? 'selected' : '' }}>
-                                    {{ $akreditasi->nama_akreditasi }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                    </div>
+                    
                 </form>
             </div>
 

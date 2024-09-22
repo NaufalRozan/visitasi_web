@@ -38,7 +38,7 @@
                         </div>
                     </div>
 
-                    <!-- Dropdown untuk Akreditasi -->
+                    {{-- <!-- Dropdown untuk Akreditasi -->
                     <div class="form-group">
                         <label for="akreditasi">Akreditasi</label>
                         <select name="akreditasi_id" id="akreditasi" class="form-control" onchange="this.form.submit()">
@@ -50,7 +50,7 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> --}}
 
                     <!-- Dropdown untuk Standar -->
                     <div class="form-group d-flex justify-content-between">
