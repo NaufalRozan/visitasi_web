@@ -1,6 +1,6 @@
 @extends('layouts.app-berkas')
 
-@section('title', 'General Dashboard')
+@section('title', 'Arsip')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,15 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Berkas</h1>
+                <h1>Arsip</h1>
+            </div>
+
+            <div class="d-flex flex-column align-items-center justify-content-center" style="height: 70vh;">
+                <h2 class="mt-4" style="color: #E62129;">Arsip</h2>
+                <!-- Ganti #007bff dengan kode warna yang diinginkan -->
+                <img src="{{ asset('img/unes.png') }}" alt="Logo" class="img-fluid" style="max-width: 20%;">
+                <h2 class="mt-4" style="color: #E62129;">Universitas Ekasakti Padang</h2>
+                <!-- Ganti #28a745 dengan kode warna yang diinginkan -->
             </div>
         </section>
     </div>

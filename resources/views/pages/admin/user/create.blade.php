@@ -33,7 +33,7 @@
                     <div class="form-group">
                         <label for="role">Role</label>
                         <select name="role" id="role" class="form-control" required onchange="handleRoleChange()">
-                            <option value="">Pilih Role</option>
+                            <option value="" disabled selected>Pilih Role</option>
                             <option value="Universitas">Universitas</option>
                             <option value="Fakultas">Fakultas</option>
                             <option value="Prodi">Prodi</option>

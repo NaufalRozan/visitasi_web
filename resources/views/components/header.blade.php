@@ -11,14 +11,14 @@
                 <a href="{{ url('/dashboard') }}" class="nav-link">Home</a>
             </li>
             <li class="nav-item">
-                <a href="{{ url('/berkas') }}" class="nav-link">Berkas</a>
+                <a href="{{ url('/berkas') }}" class="nav-link">Arsip</a>
             </li>
             <li class="nav-item">
-                <a href="{{ url('/master') }}" class="nav-link">Master</a>
+                <a href="{{ url('/master') }}" class="nav-link">Setelan</a>
 
             </li>
             <li class="nav-item">
-                <a href="{{ url('/resume') }}" class="nav-link">Resume</a>
+                <a href="{{ url('/resume') }}" class="nav-link">Dashboard</a>
             </li>
             @if (auth()->user()->role === 'Universitas')
                 <li class="nav-item">
@@ -30,8 +30,15 @@
     <ul class="navbar-nav navbar-right">
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()->name }}</div>
+                <div class="d-sm-none d-lg-inline-block">
+                    @php
+                        $prodi_id = session('prodi_id');
+                        $prodi = \App\Models\Prodi::find($prodi_id);
+                    @endphp
+                    {{ auth()->user()->name }} | {{ $prodi ? $prodi->nama_prodi : 'Prodi Tidak Ditemukan' }}
+                </div>
             </a>
+
             <div class="dropdown-menu dropdown-menu-right">
 
                 <!-- Logout -->

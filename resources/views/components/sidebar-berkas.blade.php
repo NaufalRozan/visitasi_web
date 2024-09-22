@@ -16,10 +16,10 @@
         @endphp
 
         <div class="sidebar-brand">
-            <a>{{ $prodi ? $prodi->nama_prodi : 'Prodi Tidak Ditemukan' }}</a> <!-- Menampilkan nama prodi -->
+            <a>Arsip Akreditasi</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="home">{{ $prodi ? substr($prodi->nama_prodi, 0, 3) : 'Prodi' }}</a> <!-- Singkatan prodi -->
+            <a href="home">AA</a> <!-- Singkatan prodi -->
         </div>
         <ul class="sidebar-menu">
             <!-- Loop untuk setiap Standar dan Substandar -->

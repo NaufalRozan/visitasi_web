@@ -1,12 +1,12 @@
 @extends('layouts.app-berkas')
 
-@section('title', 'Detail Berkas')
+@section('title', 'Arsip')
 
 @section('main')
     <div class="main-content">
         <section class="section">
             <div class="section-header d-flex justify-content-between">
-                <h1>Detail: {{ $substandar->nama_substandar }}</h1>
+                <h1>Arsip: {{ $substandar->nama_substandar }}</h1>
             </div>
 
             <div class="section-body">
