@@ -110,7 +110,7 @@
                                 @else
                                     @foreach ($details as $detail)
                                         <tr data-id="{{ $detail->id }}">
-                                            <td><i class="fas fa-bars handle"></i></td>
+                                            <td><i class="fas fa-bars handle sort-handler"></i></td>
                                             <td>{{ $detail->no_urut }}</td>
                                             <td>{{ $detail->nama_detail }}</td>
                                             <td>

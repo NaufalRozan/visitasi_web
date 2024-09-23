@@ -86,7 +86,7 @@
                                 @else
                                     @foreach ($standars as $standar)
                                         <tr data-id="{{ $standar->id }}">
-                                            <td><i class="fas fa-bars handle"></i></td>
+                                            <td><i class="fas fa-bars handle sort-handler"></i></td>
                                             <td>{{ $standar->no_urut }}</td>
                                             <td>{{ $standar->nama_standar }}</td>
                                             <td>
