@@ -8,6 +8,7 @@ use App\Models\Standar;
 use App\Models\Prodi;
 use App\Models\Akreditasi;
 use App\Models\DetailItem;
+use App\Models\Fakultas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,53 +17,95 @@ class DetailController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $prodi_id = session('prodi_id');
 
-        if (!$prodi_id) {
-            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+        // Jika user role adalah Prodi, gunakan session
+        if ($user->role === 'Prodi') {
+            $prodi_id = session('prodi_id');
+
+            if (!$prodi_id) {
+                return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+            }
+
+            $prodi = Prodi::find($prodi_id);
+
+            if (!$prodi) {
+                return redirect()->route('login')->withErrors('Prodi tidak ditemukan.');
+            }
+
+            $fakultas = $prodi->fakultas;
+
+            if (!$fakultas) {
+                return redirect()->route('login')->withErrors('Fakultas tidak ditemukan untuk prodi ini.');
+            }
+
+            // Ambil akreditasi aktif
+            $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
+            $selected_akreditasi_id = $akreditasi_aktif ? $akreditasi_aktif->id : null;
+
+            // Ambil standar
+            $standars = Standar::where('akreditasi_id', $selected_akreditasi_id)->get();
+
+            // Ambil substandar jika ada standar yang dipilih
+            $substandars = collect();
+            if ($request->has('standar_id')) {
+                $selectedStandarId = $request->standar_id;
+                $substandars = Substandar::where('standar_id', $selectedStandarId)->get();
+            }
+
+            // Ambil detail jika ada substandar yang dipilih
+            $details = collect();
+            if ($request->has('substandar_id')) {
+                $selectedSubstandarId = $request->substandar_id;
+                $details = Detail::where('substandar_id', $selectedSubstandarId)
+                    ->orderBy('no_urut')
+                    ->get();
+            }
+
+            // Tentukan nomor urut berikutnya
+            $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
+            $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
+
+            return view('pages.master.detail', compact('fakultas', 'prodi', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
+        } else {
+            // Untuk role lainnya (Fakultas atau UNIV)
+            $prodis = $user->prodis;
+            $fakultas_ids = $prodis->pluck('fakultas_id')->unique();
+            $fakultas = Fakultas::whereIn('id', $fakultas_ids)->get();
+
+            $selected_fakultas_id = $request->input('fakultas_id');
+            $selected_prodi_id = $request->input('prodi_id');
+
+            // Ambil akreditasi aktif
+            $akreditasi_aktif = Akreditasi::where('prodi_id', $selected_prodi_id)
+                ->where('status', 'aktif')
+                ->first();
+            $selected_akreditasi_id = $akreditasi_aktif ? $akreditasi_aktif->id : null;
+
+            // Ambil standar
+            $standars = Standar::where('akreditasi_id', $selected_akreditasi_id)->get();
+
+            // Ambil substandar jika ada standar yang dipilih
+            $substandars = collect();
+            if ($request->has('standar_id')) {
+                $selectedStandarId = $request->standar_id;
+                $substandars = Substandar::where('standar_id', $selectedStandarId)->get();
+            }
+
+            // Ambil detail jika ada substandar yang dipilih
+            $details = collect();
+            if ($request->has('substandar_id')) {
+                $selectedSubstandarId = $request->substandar_id;
+                $details = Detail::where('substandar_id', $selectedSubstandarId)
+                    ->orderBy('no_urut')
+                    ->get();
+            }
+
+            // Tentukan nomor urut berikutnya
+            $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
+            $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
+
+            return view('pages.master.detail', compact('fakultas', 'prodis', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
         }
-
-        $prodi = Prodi::find($prodi_id);
-
-        if (!$prodi) {
-            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
-        }
-
-        $fakultas = $prodi->fakultas;
-        if (!$fakultas) {
-            return redirect()->route('login')->withErrors('Fakultas tidak ditemukan untuk prodi ini.');
-        }
-
-        // Ambil akreditasi aktif
-        $akreditasis = Akreditasi::where('prodi_id', $prodi->id)->get();
-        $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
-
-        // Pilih akreditasi dari request atau aktif
-        $selectedAkreditasiId = $request->input('akreditasi_id', $akreditasi_aktif ? $akreditasi_aktif->id : null);
-
-        $standars = collect();
-        if ($selectedAkreditasiId) {
-            $standars = Standar::where('akreditasi_id', $selectedAkreditasiId)->get();
-        }
-
-        $substandars = collect();
-        if ($request->has('standar_id')) {
-            $selectedStandarId = $request->standar_id;
-            $substandars = Substandar::where('standar_id', $selectedStandarId)->get();
-        }
-
-        $details = collect();
-        if ($request->has('substandar_id')) {
-            $selectedSubstandarId = $request->substandar_id;
-            $details = Detail::where('substandar_id', $selectedSubstandarId)
-                ->orderBy('no_urut')
-                ->get();
-        }
-
-        $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
-        $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
-
-        return view('pages.master.detail', compact('fakultas', 'prodi', 'akreditasis', 'standars', 'substandars', 'details', 'nextNumber', 'selectedAkreditasiId'));
     }
 
 
@@ -82,6 +125,8 @@ class DetailController extends Controller
 
         return redirect()->route('detail.index', [
             'akreditasi_id' => $request->akreditasi_id,
+            'fakultas_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi->fakultas_id,
+            'prodi_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi_id,
             'standar_id' => $request->standar_id,
             'substandar_id' => $request->substandar_id
         ])->with('success', 'Detail berhasil ditambahkan!');
@@ -114,6 +159,8 @@ class DetailController extends Controller
 
         return redirect()->route('detail.index', [
             'akreditasi_id' => $request->akreditasi_id,
+            'fakultas_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi->fakultas_id,
+            'prodi_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi_id,
             'standar_id' => $request->standar_id,
             'substandar_id' => $request->substandar_id
         ])->with('success', 'Detail berhasil diperbarui!');
@@ -128,6 +175,8 @@ class DetailController extends Controller
 
         return redirect()->route('detail.index', [
             'substandar_id' => $substandar_id,
+            'fakultas_id' => Substandar::find($substandar_id)->standar->akreditasi->prodi->fakultas_id,
+            'prodi_id' => Substandar::find($substandar_id)->standar->akreditasi->prodi_id,
             'standar_id' => $standar_id,
             'akreditasi_id' => $akrediatas_id
         ])->with('success', 'Detail berhasil dihapus!');

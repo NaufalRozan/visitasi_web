@@ -11,46 +11,51 @@
 
             <!-- Dropdown Pemilihan Fakultas, Prodi, Akreditasi, Standar, dan Substandar -->
             <div class="section-body">
-                <form method="GET" action="{{ route('detail.index') }}">
+                <form method="GET" action="{{ route('detail.index') }}" id="filterForm">
                     <div class="form-group d-flex justify-content-between">
-                        <!-- Kolom Kiri -->
-                        <div class="w-50 pr-2">
-                            <label for="fakultas">Fakultas</label>
-                            <select name="fakultas_id" id="fakultas" class="form-control" disabled>
-                                @if ($fakultas)
-                                    <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
-                                @else
-                                    <option value="">Fakultas tidak ditemukan</option>
-                                @endif
-                            </select>
-                        </div>
+                        @if ($user->role !== 'Prodi')
+                            <!-- Kolom Kiri: Fakultas -->
+                            <div class="w-50 pr-2">
+                                <label for="fakultas">Fakultas</label>
+                                <select name="fakultas_id" id="fakultas" class="form-control" required>
+                                    <option value="" disabled selected>Pilih Fakultas</option>
+                                    @foreach ($fakultas as $f)
+                                        <option value="{{ $f->id }}"
+                                            {{ request('fakultas_id') == $f->id ? 'selected' : '' }}>
+                                            {{ $f->nama_fakultas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        <!-- Kolom Kanan -->
-                        <div class="w-50 pl-2">
-                            <label for="prodi">Program Studi</label>
-                            <select name="prodi_id" id="prodi" class="form-control" disabled>
-                                @if ($prodi)
-                                    <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
-                                @else
-                                    <option value="">Prodi tidak ditemukan</option>
-                                @endif
-                            </select>
-                        </div>
+                            <!-- Kolom Kanan: Prodi -->
+                            <div class="w-50 pl-2" id="prodiWrapper">
+                                <label for="prodi">Program Studi</label>
+                                <select name="prodi_id" id="prodi" class="form-control" disabled required>
+                                    <option value="">Pilih Fakultas Terlebih Dahulu</option>
+                                    @foreach ($prodis as $p)
+                                        <option value="{{ $p->id }}" data-fakultas="{{ $p->fakultas_id }}"
+                                            {{ request('prodi_id') == $p->id ? 'selected' : '' }}>
+                                            {{ $p->nama_prodi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <!-- Untuk role Prodi, tampilkan data dari session -->
+                            <input type="hidden" name="fakultas_id" value="{{ $prodi->fakultas->id }}">
+                            <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
+                            <div class="w-50 pr-2">
+                                <label for="fakultas">Fakultas</label>
+                                <input type="text" class="form-control" value="{{ $prodi->fakultas->nama_fakultas }}"
+                                    readonly>
+                            </div>
+                            <div class="w-50 pl-2">
+                                <label for="prodi">Program Studi</label>
+                                <input type="text" class="form-control" value="{{ $prodi->nama_prodi }}" readonly>
+                            </div>
+                        @endif
                     </div>
-
-                    {{-- <!-- Dropdown untuk Akreditasi -->
-                    <div class="form-group">
-                        <label for="akreditasi">Akreditasi</label>
-                        <select name="akreditasi_id" id="akreditasi" class="form-control" onchange="this.form.submit()">
-                            <option value="">Pilih Akreditasi</option>
-                            @foreach ($akreditasis as $akreditasi)
-                                <option value="{{ $akreditasi->id }}"
-                                    {{ $selectedAkreditasiId == $akreditasi->id ? 'selected' : '' }}>
-                                    {{ $akreditasi->nama_akreditasi }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div> --}}
 
                     <!-- Dropdown untuk Standar -->
                     <div class="form-group d-flex justify-content-between">
@@ -67,7 +72,7 @@
                             </select>
                         </div>
 
-                        <!-- Kolom Kanan -->
+                        <!-- Kolom Kanan: Substandar -->
                         <div class="w-50 pl-2">
                             <label for="substandar">Sub-Bagian</label>
                             <select name="substandar_id" id="substandar" class="form-control" onchange="this.form.submit()">
@@ -86,7 +91,7 @@
 
             <!-- Tombol Tambah Data -->
             <div class="section-body mt-4">
-                @if (request('substandar_id'))
+                @if (request('substandar_id') && ($user->role === 'Prodi' || $user->prodis->contains('id', request('prodi_id'))))
                     <button class="btn btn-success mb-3" onclick="openModal()">Tambah Data</button>
                 @endif
 
@@ -156,8 +161,8 @@
                 <!-- No Urut -->
                 <div class="mb-4">
                     <label for="no_urut" class="block text-sm font-medium text-gray-700">No Urut</label>
-                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" class="form-control"
-                        required>
+                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}"
+                        class="form-control" required>
                 </div>
 
                 <!-- Nama Detail -->
@@ -180,65 +185,96 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
     <script>
-        var el = document.getElementById('detailTableBody');
-        var sortable = Sortable.create(el, {
-            handle: '.handle',
-            animation: 150,
-            onEnd: function(evt) {
-                var order = [];
-                $('#detailTableBody tr').each(function(index, element) {
-                    order.push({
-                        id: $(element).data('id'),
-                        no_urut: index + 1
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inisialisasi SortableJS pada tabel
+            var el = document.getElementById('detailTableBody');
+            var sortable = Sortable.create(el, {
+                handle: '.handle',
+                animation: 150,
+                onEnd: function(evt) {
+                    var order = [];
+                    $('#detailTableBody tr').each(function(index, element) {
+                        order.push({
+                            id: $(element).data('id'),
+                            no_urut: index + 1
+                        });
+
+                        // Update no_urut langsung pada tabel setelah drag
+                        $(element).find('td:eq(1)').text(index + 1);
                     });
 
-                    // Update no_urut langsung pada tabel setelah drag
-                    $(element).find('td:eq(1)').text(index + 1);
-                });
+                    // Kirim urutan baru ke server menggunakan AJAX
+                    $.ajax({
+                        url: "{{ route('detail.updateOrder') }}",
+                        method: 'POST',
+                        data: {
+                            order: order,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            console.log('Order updated successfully');
+                        },
+                        error: function(response) {
+                            console.error('Error updating order');
+                        }
+                    });
+                }
+            });
 
-                // Kirim urutan baru ke server
-                $.ajax({
-                    url: "{{ route('detail.updateOrder') }}",
-                    method: 'POST',
-                    data: {
-                        order: order,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        console.log('Order updated successfully');
-                    },
-                    error: function(response) {
-                        console.error('Error updating order');
-                    }
-                });
+            // Tambahkan kode lain terkait dropdown prodi dan fakultas
+            var fakultasDropdown = document.getElementById('fakultas');
+            var prodiDropdown = document.getElementById('prodi');
+            var allProdiOptions = Array.from(prodiDropdown.options);
+
+            function toggleProdiDropdown() {
+                if (!fakultasDropdown.value) {
+                    prodiDropdown.disabled = true;
+                    prodiDropdown.innerHTML = '<option value="">Pilih Fakultas Terlebih Dahulu</option>';
+                } else {
+                    prodiDropdown.disabled = false;
+                    var selectedFakultas = fakultasDropdown.value;
+                    prodiDropdown.innerHTML = '<option value="" disabled selected>Pilih Program Studi</option>';
+
+                    allProdiOptions.forEach(function(option) {
+                        var fakultasId = option.getAttribute('data-fakultas');
+                        if (fakultasId == selectedFakultas) {
+                            prodiDropdown.appendChild(option.cloneNode(true));
+                        }
+                    });
+                }
             }
+
+            toggleProdiDropdown();
+
+            fakultasDropdown.addEventListener('change', function() {
+                toggleProdiDropdown();
+            });
+
+            prodiDropdown.addEventListener('change', function() {
+                prodiDropdown.disabled = false;
+            });
+
+            document.getElementById('prodi').addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
         });
 
         function openModal(mode = 'create', id = null, nama_detail = '', no_urut = '') {
             document.getElementById('tambahDataModal').style.display = 'block';
-
             if (mode === 'edit') {
                 document.getElementById('modalTitle').innerText = 'Edit Detail';
                 document.getElementById('submitBtn').innerText = 'Update Detail';
-
-                // Update form action and method for editing
                 document.getElementById('detailForm').action = '/detail/' + id;
-                document.getElementById('methodField').value = 'PUT'; // Ubah method menjadi PUT untuk update
-
-                // Set the current data in the form fields
+                document.getElementById('methodField').value = 'PUT';
                 document.getElementById('nama_detail').value = nama_detail;
-                document.getElementById('no_urut').value = no_urut; // Set the correct no_urut value
+                document.getElementById('no_urut').value = no_urut;
             } else {
                 document.getElementById('modalTitle').innerText = 'Tambah Detail';
                 document.getElementById('submitBtn').innerText = 'Tambah Detail';
-
-                // Reset form action and method for creating
                 document.getElementById('detailForm').action = '{{ route('detail.store') }}';
-                document.getElementById('methodField').value = 'POST'; // Set method to POST
-
-                // Clear the form fields
+                document.getElementById('methodField').value = 'POST';
                 document.getElementById('nama_detail').value = '';
-                document.getElementById('no_urut').value = '{{ $nextNumber }}'; // Set the next number for new entry
+                document.getElementById('no_urut').value = '{{ $nextNumber }}';
             }
         }
 
