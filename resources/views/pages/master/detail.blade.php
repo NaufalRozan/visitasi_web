@@ -62,7 +62,7 @@
                         <div class="w-50 pr-2">
                             <label for="standar">Bagian</label>
                             <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
-                                <option value="">Pilih Bagian</option>
+                                <option value="" disabled selected>Pilih Bagian</option>
                                 @foreach ($standars as $standar)
                                     <option value="{{ $standar->id }}"
                                         {{ request('standar_id') == $standar->id ? 'selected' : '' }}>
@@ -76,7 +76,7 @@
                         <div class="w-50 pl-2">
                             <label for="substandar">Sub-Bagian</label>
                             <select name="substandar_id" id="substandar" class="form-control" onchange="this.form.submit()">
-                                <option value="">Pilih Sub-Bagian</option>
+                                <option value="" disabled selected>Pilih Sub-Bagian</option>
                                 @foreach ($substandars as $substandar)
                                     <option value="{{ $substandar->id }}"
                                         {{ request('substandar_id') == $substandar->id ? 'selected' : '' }}>

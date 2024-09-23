@@ -61,7 +61,7 @@
                     <div class="">
                         <label for="standar">Bagian</label>
                         <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
-                            <option value="">Pilih Bagian</option>
+                            <option value="" disabled selected>Pilih Bagian</option>
                             @foreach ($standars as $standar)
                                 <option value="{{ $standar->id }}"
                                     {{ request('standar_id') == $standar->id ? 'selected' : '' }}>

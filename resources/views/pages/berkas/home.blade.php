@@ -16,10 +16,10 @@
             </div>
 
             <div class="d-flex flex-column align-items-center justify-content-center" style="height: 70vh;">
-                <h2 class="mt-4" style="color: #60282a;">Arsip</h2>
+                <h2 class="mt-4" style="color: #f12944;">Arsip</h2>
                 <!-- Ganti #007bff dengan kode warna yang diinginkan -->
                 <img src="{{ asset('img/unes.png') }}" alt="Logo" class="img-fluid" style="max-width: 20%;">
-                <h2 class="mt-4" style="color: #60282a;">Universitas Ekasakti Padang</h2>
+                <h2 class="mt-4" style="color: #f12944;">Universitas Ekasakti Padang</h2>
                 <!-- Ganti #28a745 dengan kode warna yang diinginkan -->
             </div>
         </section>
