@@ -17,7 +17,7 @@
     <h3 class="font-medium text-xl leading-8">
         <a href="javascript:void(0);" onclick="openModal({{ $prodi->id }})"
             class="block relative group-hover:text-red-700 transition-colors duration-200 ">
-            {{ $prodi->nama_prodi }}
+            {{ $prodi->nama_sub_unit }}
         </a>
     </h3>
 </div>
