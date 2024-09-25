@@ -20,26 +20,22 @@ class DetailController extends Controller
 
         // Jika user role adalah Prodi, gunakan session
         if ($user->role === 'Prodi') {
-            $prodi_id = session('prodi_id');
+            $sub_unit_id = session('sub_unit_id');
 
-            if (!$prodi_id) {
+            if (!$sub_unit_id) {
                 return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
             }
 
-            $prodi = Prodi::find($prodi_id);
+            $sub_unit = Prodi::find($sub_unit_id);
 
-            if (!$prodi) {
+            if (!$sub_unit) {
                 return redirect()->route('login')->withErrors('Prodi tidak ditemukan.');
             }
 
-            $fakultas = $prodi->fakultas;
-
-            if (!$fakultas) {
-                return redirect()->route('login')->withErrors('Fakultas tidak ditemukan untuk prodi ini.');
-            }
+            $unit = $sub_unit->unit;
 
             // Ambil akreditasi aktif
-            $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
+            $akreditasi_aktif = $sub_unit->akreditasis()->where('status', 'aktif')->first();
             $selected_akreditasi_id = $akreditasi_aktif ? $akreditasi_aktif->id : null;
 
             // Ambil standar
@@ -65,18 +61,18 @@ class DetailController extends Controller
             $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
             $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-            return view('pages.master.detail', compact('fakultas', 'prodi', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
+            return view('pages.master.detail', compact('unit', 'sub_unit', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
         } else {
             // Untuk role lainnya (Fakultas atau UNIV)
-            $prodis = $user->prodis;
-            $fakultas_ids = $prodis->pluck('fakultas_id')->unique();
-            $fakultas = Fakultas::whereIn('id', $fakultas_ids)->get();
+            $sub_units = $user->sub_units;
+            $unit_ids = $sub_units->pluck('unit_id')->unique();
+            $unit = Fakultas::whereIn('id', $unit_ids)->get();
 
-            $selected_fakultas_id = $request->input('fakultas_id');
-            $selected_prodi_id = $request->input('prodi_id');
+            $selected_unit_id = $request->input('unit_id');
+            $selected_sub_unit_id = $request->input('sub_unit_id');
 
             // Ambil akreditasi aktif
-            $akreditasi_aktif = Akreditasi::where('prodi_id', $selected_prodi_id)
+            $akreditasi_aktif = Akreditasi::where('sub_unit_id', $selected_sub_unit_id)
                 ->where('status', 'aktif')
                 ->first();
             $selected_akreditasi_id = $akreditasi_aktif ? $akreditasi_aktif->id : null;
@@ -104,7 +100,7 @@ class DetailController extends Controller
             $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
             $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-            return view('pages.master.detail', compact('fakultas', 'prodis', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
+            return view('pages.master.detail', compact('unit', 'sub_units', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
         }
     }
 
@@ -125,8 +121,8 @@ class DetailController extends Controller
 
         return redirect()->route('detail.index', [
             'akreditasi_id' => $request->akreditasi_id,
-            'fakultas_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi->fakultas_id,
-            'prodi_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi_id,
+            'unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit->unit_id,
+            'sub_unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit_id,
             'standar_id' => $request->standar_id,
             'substandar_id' => $request->substandar_id
         ])->with('success', 'Detail berhasil ditambahkan!');
@@ -159,8 +155,8 @@ class DetailController extends Controller
 
         return redirect()->route('detail.index', [
             'akreditasi_id' => $request->akreditasi_id,
-            'fakultas_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi->fakultas_id,
-            'prodi_id' => Substandar::find($request->substandar_id)->standar->akreditasi->prodi_id,
+            'unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit->unit_id,
+            'sub_unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit_id,
             'standar_id' => $request->standar_id,
             'substandar_id' => $request->substandar_id
         ])->with('success', 'Detail berhasil diperbarui!');
@@ -175,8 +171,8 @@ class DetailController extends Controller
 
         return redirect()->route('detail.index', [
             'substandar_id' => $substandar_id,
-            'fakultas_id' => Substandar::find($substandar_id)->standar->akreditasi->prodi->fakultas_id,
-            'prodi_id' => Substandar::find($substandar_id)->standar->akreditasi->prodi_id,
+            'unit_id' => Substandar::find($substandar_id)->standar->akreditasi->sub_unit->unit_id,
+            'sub_unit_id' => Substandar::find($substandar_id)->standar->akreditasi->sub_unit_id,
             'standar_id' => $standar_id,
             'akreditasi_id' => $akrediatas_id
         ])->with('success', 'Detail berhasil dihapus!');

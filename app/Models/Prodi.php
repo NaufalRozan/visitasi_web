@@ -11,24 +11,24 @@ class Prodi extends Model
 
     public $timestamps = false;
     // Nama tabel di database
-    protected $table = 'prodi';
+    protected $table = 'sub_units';
 
     // Kolom-kolom yang dapat diisi secara massal
-    protected $fillable = ['id', 'nama_prodi', 'fakultas_id'];
+    protected $fillable = ['id', 'nama_sub_unit', 'unit_id'];
 
     // Mengatur relasi banyak-ke-satu dengan model Fakultas
-    public function fakultas()
+    public function units()
     {
-        return $this->belongsTo(Fakultas::class);
+        return $this->belongsTo(Fakultas::class, 'unit_id');
     }
 
     public function akreditasis()
     {
-        return $this->hasMany(Akreditasi::class);
+        return $this->hasMany(Akreditasi::class, 'sub_unit_id');
     }
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'users_prodi', 'prodi_id', 'user_id');
+        return $this->belongsToMany(User::class, 'users_sub_unit', 'sub_unit_id', 'user_id');
     }
 }

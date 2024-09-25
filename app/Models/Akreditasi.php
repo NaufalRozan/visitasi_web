@@ -9,7 +9,7 @@ class Akreditasi extends Model
     public $timestamps = false;
     protected $table = 'akreditasi';
     protected $fillable = [
-        'prodi_id',
+        'sub_unit_id',
         'nama_akreditasi',
         'status',
     ];
@@ -17,7 +17,7 @@ class Akreditasi extends Model
     public function setActive()
     {
         // Nonaktifkan semua akreditasi lain untuk prodi yang sama
-        Akreditasi::where('prodi_id', $this->prodi_id)
+        Akreditasi::where('sub_unit_id', $this->sub_unit_id)
             ->update(['status' => 'tidak aktif']);
 
         // Aktifkan akreditasi ini
@@ -25,7 +25,7 @@ class Akreditasi extends Model
         $this->save();
     }
 
-    public function prodi()
+    public function sub_unit()
     {
         return $this->belongsTo(Prodi::class);
     }

@@ -14,23 +14,23 @@ class ProdiLoginController extends Controller
     public function index()
     {
         // Mengambil data prodi dan mengurutkannya berdasarkan id_fakultas
-        $prodis = Prodi::orderBy('fakultas_id')->get();
+        $sub_units = Prodi::orderBy('unit_id')->get();
 
-        return view('home', compact('prodis'));
+        return view('home', compact('sub_units'));
     }
 
     /**
      * Show the login form for the selected prodi.
      */
-    public function showLoginForm(Prodi $prodi)
+    public function showLoginForm(Prodi $sub_units)
     {
-        return view('auth.prodi-login', compact('prodi'));
+        return view('auth.prodi-login', compact('sub_units'));
     }
 
     /**
      * Handle login request.
      */
-    public function login(Request $request, Prodi $prodi)
+    public function login(Request $request, Prodi $sub_units)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -38,7 +38,7 @@ class ProdiLoginController extends Controller
         ]);
 
         // Add prodi_id to the credentials
-        $credentials['prodi_id'] = $prodi->id;
+        $credentials['sub_unit_id'] = $sub_units->id;
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();

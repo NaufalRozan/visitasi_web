@@ -16,61 +16,60 @@ class AkreditasiController extends Controller
 
         if ($user->role === 'Prodi') {
             // Ambil prodi_id dari session jika user adalah Prodi
-            $prodi_id = session('prodi_id');
+            $sub_unit_id = session('sub_unit_id');
 
-            if (!$prodi_id) {
+            if (!$sub_unit_id) {
                 return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
             }
 
-            $prodi = Prodi::find($prodi_id);
+            $sub_unit = Prodi::find($sub_unit_id);
 
-            if (!$prodi) {
+            if (!$sub_unit) {
                 return redirect()->route('login')->withErrors('Prodi tidak ditemukan.');
             }
 
-            $fakultas = $prodi->fakultas;
+            $unit = $sub_unit->unit;
 
-            $akreditasis = Akreditasi::where('prodi_id', $prodi->id)->get();
+            $akreditasis = Akreditasi::where('sub_unit_id', $sub_unit->id)->get();
 
-            return view('pages.master.akreditasi', compact('fakultas', 'prodi', 'akreditasis', 'user'));
+            return view('pages.master.akreditasi', compact('unit', 'sub_unit', 'akreditasis', 'user'));
         } else {
             // Jika user role lain selain Prodi (misalnya Universitas atau Fakultas)
-            $prodis = $user->prodis;
-            $fakultas_ids = $prodis->pluck('fakultas_id')->unique();
-            $fakultas = Fakultas::whereIn('id', $fakultas_ids)->get();
+            $sub_units = $user->sub_units;
+            $unit_ids = $sub_units->pluck('unit_id')->unique();
+            $unit = Fakultas::whereIn('id', $unit_ids)->get();
 
-            $selected_fakultas_id = $request->input('fakultas_id');
-            $selected_prodi_id = $request->input('prodi_id');
+            $selected_unit_id = $request->input('unit_id');
+            $selected_sub_unit_id = $request->input('sub_unit_id');
 
-            $prodi = null; // Default value null
+            $sub_unit = null; // Default value null
 
-            if ($selected_prodi_id) {
-                $prodi = Prodi::find($selected_prodi_id); // Ambil prodi yang sesuai
-                $akreditasis = Akreditasi::where('prodi_id', $selected_prodi_id)->get();
+            if ($selected_sub_unit_id) {
+                $sub_unit = Prodi::find($selected_sub_unit_id); // Ambil prodi yang sesuai
+                $akreditasis = Akreditasi::where('sub_unit_id', $selected_sub_unit_id)->get();
             } else {
                 $akreditasis = collect(); // Kosongkan jika belum ada prodi yang dipilih
             }
 
-            return view('pages.master.akreditasi', compact('fakultas', 'prodis', 'akreditasis', 'user', 'prodi'));
+            return view('pages.master.akreditasi', compact('unit', 'sub_units', 'akreditasis', 'user', 'sub_unit'));
         }
     }
-
     public function store(Request $request)
     {
         $request->validate([
             'nama_akreditasi' => 'required|string|max:255',
-            'prodi_id' => 'required|exists:prodi,id',
+            'sub_unit_id' => 'required|exists:sub_units,id',
         ]);
 
         Akreditasi::create([
             'nama_akreditasi' => $request->nama_akreditasi,
-            'prodi_id' => $request->prodi_id,
+            'sub_unit_id' => $request->sub_unit_id,
             'status' => 'tidak aktif', // Atur status default
         ]);
 
         return redirect()->route('akreditasi.index', [
-            'prodi_id' => $request->prodi_id,
-            'fakultas_id' => Prodi::find($request->prodi_id)->fakultas_id,
+            'sub_unit_id' => $request->sub_unit_id,
+            'unit_id' => Prodi::find($request->sub_unit_id)->unit_id,
         ])->with('success', 'Akreditasi berhasil ditambahkan!');
     }
 
@@ -88,16 +87,16 @@ class AkreditasiController extends Controller
         return redirect()->route(
             'akreditasi.index',
             [
-                'prodi_id' => $akreditasi->prodi_id,
-                'fakultas_id' => Prodi::find($akreditasi->prodi_id)->fakultas_id,
+                'sub_unit_id' => $akreditasi->sub_unit_id,
+                'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
             ]
         )->with('success', 'Akreditasi berhasil diperbarui!');
     }
 
     public function activate(Akreditasi $akreditasi)
     {
-        // Nonaktifkan semua akreditasi pada prodi yang sama
-        Akreditasi::where('prodi_id', $akreditasi->prodi_id)
+        // Nonaktifkan semua akreditasi pada sub_unit yang sama
+        Akreditasi::where('sub_unit_id', $akreditasi->sub_unit_id)
             ->update(['status' => 'tidak aktif']);
 
         // Aktifkan akreditasi yang dipilih
@@ -106,8 +105,8 @@ class AkreditasiController extends Controller
         return redirect()->route(
             'akreditasi.index',
             [
-                'prodi_id' => $akreditasi->prodi_id,
-                'fakultas_id' => Prodi::find($akreditasi->prodi_id)->fakultas_id,
+                'sub_unit_id' => $akreditasi->sub_unit_id,
+                'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
             ]
         )->with('success', 'Akreditasi berhasil diaktifkan!');
     }
@@ -118,8 +117,8 @@ class AkreditasiController extends Controller
         $akreditasi->delete();
 
         return redirect()->route('akreditasi.index', [
-            'prodi_id' => $akreditasi->prodi_id,
-            'fakultas_id' => Prodi::find($akreditasi->prodi_id)->fakultas_id,
+            'sub_unit_id' => $akreditasi->sub_unit_id,
+            'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
         ])->with('success', 'Akreditasi berhasil dihapus!');
     }
 }

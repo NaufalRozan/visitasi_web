@@ -15,7 +15,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): View
     {
-        return view('home', ['prodis' => Prodi::all()]);
+        return view('home', ['sub_units' => Prodi::all()]);
     }
 
     public function store(LoginRequest $request): RedirectResponse
@@ -24,7 +24,7 @@ class AuthenticatedSessionController extends Controller
             $request->authenticate();
 
             // Simpan prodi_id ke dalam session
-            session(['prodi_id' => $request->prodi_id]);
+            session(['sub_unit_id' => $request->sub_unit_id]);
 
             $request->session()->regenerate();
 
@@ -37,9 +37,9 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('login')
                 ->withErrors([
                     'email' => 'Email atau password yang Anda masukkan salah.',
-                    'prodi_id' => 'Prodi tidak sesuai dengan akun Anda.',
+                    'sub_unit_id' => 'Sub Unit tidak sesuai dengan akun Anda.',
                 ])
-                ->withInput($request->only('email', 'prodi_id'));
+                ->withInput($request->only('email', 'sub_unit_id'));
         }
     }
 

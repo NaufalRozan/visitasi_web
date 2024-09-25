@@ -1,11 +1,11 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         @php
-            $prodi_id = session('prodi_id');
-            $prodi = \App\Models\Prodi::find($prodi_id);
+            $sub_unit_id = session('sub_unit_id');
+            $sub_units = \App\Models\Prodi::find($sub_unit_id);
 
             // Ambil akreditasi yang aktif
-            $akreditasi_aktif = \App\Models\Akreditasi::where('prodi_id', $prodi_id)->where('status', 'aktif')->first();
+            $akreditasi_aktif = \App\Models\Akreditasi::where('sub_unit_id', $sub_unit_id)->where('status', 'aktif')->first();
 
             // Ambil standar berdasarkan akreditasi yang aktif
             $standars = $akreditasi_aktif
@@ -19,7 +19,7 @@
             <a>Arsip Akreditasi</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="home">AA</a> <!-- Singkatan prodi -->
+            <a href="home">AA</a> <!-- Singkatan sub_unit -->
         </div>
         <ul class="sidebar-menu">
             <!-- Loop untuk setiap Standar dan Substandar -->

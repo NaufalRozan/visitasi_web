@@ -14,27 +14,28 @@ class ResumeController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $prodi_id = session('prodi_id');
+        $sub_unit_id = session('sub_unit_id');
 
         // Validasi apakah prodi_id ada di session
-        if (!$prodi_id) {
+        if (!$sub_unit_id) {
             return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
         }
 
         // Ambil Prodi berdasarkan prodi_id dari session
-        $prodi = Prodi::find($prodi_id);
-        if (!$prodi) {
-            return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
+        $sub_unit = Prodi::find($sub_unit_id);
+
+        if (!$sub_unit) {
+            return redirect()->route('login')->withErrors('Prodi tidak ditemukan.');
         }
 
         // Ambil Fakultas terkait Prodi
-        $fakultas = $prodi->fakultas;
+        $unit = $sub_unit->unit;
 
         // Ambil semua akreditasi terkait Prodi
-        $akreditasis = $prodi->akreditasis()->get();
+        $akreditasis = $sub_unit->akreditasis()->get();
 
         // Ambil Akreditasi aktif
-        $akreditasi_aktif = $prodi->akreditasis()->where('status', 'aktif')->first();
+        $akreditasi_aktif = $sub_unit->akreditasis()->where('status', 'aktif')->first();
 
         // Gunakan akreditasi aktif atau request akreditasi_id
         $selected_akreditasi_id = $request->input('akreditasi_id', $akreditasi_aktif ? $akreditasi_aktif->id : null);
@@ -63,6 +64,6 @@ class ResumeController extends Controller
                 ->get();
         }
 
-        return view('pages.resume.home', compact('fakultas', 'prodi', 'akreditasis', 'selected_akreditasi_id', 'standars'));
+        return view('pages.resume.home', compact('unit', 'sub_unit', 'akreditasis', 'selected_akreditasi_id', 'standars'));
     }
 }

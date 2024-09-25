@@ -25,9 +25,9 @@ class User extends Authenticatable
         'password',
         'role',
     ];
-    public function prodis()
+    public function sub_units()
     {
-        return $this->belongsToMany(Prodi::class, 'users_prodi', 'user_id', 'prodi_id');
+        return $this->belongsToMany(Prodi::class, 'users_sub_unit', 'user_id', 'sub_unit_id');
     }
 
 
