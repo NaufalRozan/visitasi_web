@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prodi Login</title>
+    <title>Sub Unit Login</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
@@ -112,9 +112,9 @@
 
     <div class="p-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-center px-2 mx-auto">
-            @foreach ($prodis as $prodi)
-                <div onclick="openModal({{ $prodi->id }})" class="cursor-pointer">
-                    <x-prodi-card :prodi="$prodi" />
+            @foreach ($sub_units as $sub_units)
+                <div onclick="openModal({{ $sub_units->id }})" class="cursor-pointer">
+                    <x-prodi-card :prodi="$sub_units" />
                 </div>
             @endforeach
         </div>
@@ -126,7 +126,7 @@
             <h2 class="text-center mb-4">Login</h2>
             <form action="{{ route('login') }}" method="POST">
                 @csrf
-                <input type="hidden" name="prodi_id" id="prodi_id" value="{{ old('prodi_id') }}">
+                <input type="hidden" name="sub_unit_id" id="sub_unit_id" value="{{ old('sub_unit_id') }}">
 
                 <div class="mb-4">
                     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -151,8 +151,8 @@
     </div>
 
     <script>
-        function openModal(prodiId) {
-            document.getElementById('prodi_id').value = prodiId;
+        function openModal(sub_unitId) {
+            document.getElementById('sub_unit_id').value = sub_unitId;
             document.getElementById('loginModal').style.display = "block";
         }
 

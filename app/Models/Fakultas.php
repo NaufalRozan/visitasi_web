@@ -11,13 +11,13 @@ class Fakultas extends Model
 
     public $timestamps = false;
     // Nama tabel di database
-    protected $table = 'fakultas';
+    protected $table = 'units';
 
     // Kolom-kolom yang dapat diisi secara massal
-    protected $fillable = ['id', 'nama_fakultas'];
+    protected $fillable = ['id', 'nama_unit'];
 
     // Mengatur relasi satu-ke-banyak dengan model Prodi
-    public function prodis()
+    public function sub_units()
     {
         return $this->hasMany(Prodi::class);
     }

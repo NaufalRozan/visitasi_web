@@ -15,10 +15,10 @@
                     <div class="form-group d-flex justify-content-between">
                         <!-- Kolom Kiri: Fakultas -->
                         <div class="w-50 pr-2">
-                            <label for="fakultas">Fakultas</label>
-                            <select name="fakultas_id" id="fakultas" class="form-control" disabled>
-                                @if ($fakultas)
-                                    <option value="{{ $fakultas->id }}">{{ $fakultas->nama_fakultas }}</option>
+                            <label for="units">Fakultas</label>
+                            <select name="unit_id" id="units" class="form-control" disabled>
+                                @if ($sub_unit && $sub_unit->units)
+                                    <option value="{{ $sub_unit->units->id }}">{{ $sub_unit->units->nama_unit }}</option>
                                 @else
                                     <option value="">Fakultas tidak ditemukan</option>
                                 @endif
@@ -27,10 +27,10 @@
 
                         <!-- Kolom Tengah: Prodi -->
                         <div class="w-50 pl-2">
-                            <label for="prodi">Program Studi</label>
-                            <select name="prodi_id" id="prodi" class="form-control" disabled>
-                                @if ($prodi)
-                                    <option value="{{ $prodi->id }}">{{ $prodi->nama_prodi }}</option>
+                            <label for="sub_units">Program Studi</label>
+                            <select name="sub_unit_id" id="sub_units" class="form-control" disabled>
+                                @if ($sub_unit)
+                                    <option value="{{ $sub_unit->id }}">{{ $sub_unit->nama_sub_unit }}</option>
                                 @else
                                     <option value="">Prodi tidak ditemukan</option>
                                 @endif

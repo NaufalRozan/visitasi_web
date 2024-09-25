@@ -16,43 +16,43 @@
                         @if ($user->role !== 'Prodi')
                             <!-- Kolom Kiri: Fakultas -->
                             <div class="w-50 pr-2">
-                                <label for="fakultas">Fakultas</label>
-                                <select name="fakultas_id" id="fakultas" class="form-control" required>
+                                <label for="units">Fakultas</label>
+                                <select name="unit_id" id="units" class="form-control" required>
                                     <option value="" disabled selected>Pilih Fakultas</option>
-                                    @foreach ($fakultas as $f)
+                                    @foreach ($unit as $f)
                                         <option value="{{ $f->id }}"
-                                            {{ request('fakultas_id') == $f->id ? 'selected' : '' }}>
-                                            {{ $f->nama_fakultas }}
+                                            {{ request('unit_id') == $f->id ? 'selected' : '' }}>
+                                            {{ $f->nama_unit }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <!-- Kolom Kanan: Prodi -->
-                            <div class="w-50 pl-2" id="prodiWrapper">
-                                <label for="prodi">Program Studi</label>
-                                <select name="prodi_id" id="prodi" class="form-control" disabled required>
+                            <div class="w-50 pl-2" id="sub_unitWrapper">
+                                <label for="sub_units">Program Studi</label>
+                                <select name="sub_unit_id" id="sub_units" class="form-control" disabled required>
                                     <option value="">Pilih Fakultas Terlebih Dahulu</option>
-                                    @foreach ($prodis as $p)
-                                        <option value="{{ $p->id }}" data-fakultas="{{ $p->fakultas_id }}"
-                                            {{ request('prodi_id') == $p->id ? 'selected' : '' }}>
-                                            {{ $p->nama_prodi }}
+                                    @foreach ($sub_units as $p)
+                                        <option value="{{ $p->id }}" data-units="{{ $p->unit_id }}"
+                                            {{ request('sub_unit_id') == $p->id ? 'selected' : '' }}>
+                                            {{ $p->nama_sub_unit }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                         @else
                             <!-- Untuk role Prodi, tampilkan data dari session -->
-                            <input type="hidden" name="fakultas_id" value="{{ $prodi->fakultas->id }}">
-                            <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
+                            <input type="hidden" name="unit_id" value="{{ $sub_unit->units->id }}">
+                            <input type="hidden" name="sub_unit_id" value="{{ $sub_unit->id }}">
                             <div class="w-50 pr-2">
-                                <label for="fakultas">Fakultas</label>
-                                <input type="text" class="form-control" value="{{ $prodi->fakultas->nama_fakultas }}"
+                                <label for="units">Fakultas</label>
+                                <input type="text" class="form-control" value="{{ $sub_unit->units->nama_unit }}"
                                     readonly>
                             </div>
                             <div class="w-50 pl-2">
-                                <label for="prodi">Program Studi</label>
-                                <input type="text" class="form-control" value="{{ $prodi->nama_prodi }}" readonly>
+                                <label for="sub_units">Program Studi</label>
+                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" readonly>
                             </div>
                         @endif
                     </div>
@@ -62,7 +62,7 @@
             <!-- Tabel Akreditasi -->
             <div class="section-body mt-4">
                 <!-- Tombol Tambah Data -->
-                @if ($user->role === 'Prodi' || $user->prodis->contains('id', request('prodi_id')))
+                @if ($user->role === 'Prodi' || $user->sub_units->contains('id', request('sub_unit_id')))
                     <button class="btn btn-success mb-3" onclick="openModal('create')">Tambah Data</button>
                 @endif
 
@@ -140,10 +140,10 @@
             <h2 id="modalTitle" class="text-center mb-4">Tambah Akreditasi</h2>
             <form id="akreditasiForm" action="{{ route('akreditasi.store') }}" method="POST">
                 @csrf
-                @if (isset($prodi) && $prodi)
-                    <input type="hidden" name="prodi_id" value="{{ $prodi->id }}">
+                @if (isset($sub_unit) && $sub_unit)
+                    <input type="hidden" name="sub_unit_id" value="{{ $sub_unit->id }}">
                 @else
-                    <input type="hidden" name="prodi_id" value="">
+                    <input type="hidden" name="sub_unit_id" value="">
                 @endif
 
                 <input type="hidden" id="methodField" name="_method" value="POST">
@@ -168,8 +168,8 @@
     <script>
         // Tambahkan kode lain terkait dropdown prodi dan fakultas
         document.addEventListener('DOMContentLoaded', function() {
-            var fakultasDropdown = document.getElementById('fakultas');
-            var prodiDropdown = document.getElementById('prodi');
+            var fakultasDropdown = document.getElementById('units');
+            var prodiDropdown = document.getElementById('sub_units');
             var allProdiOptions = Array.from(prodiDropdown.options); // Simpan semua opsi program studi
 
             function toggleProdiDropdown() {
@@ -182,7 +182,7 @@
                     prodiDropdown.innerHTML = '<option value="" disabled selected>Pilih Program Studi</option>';
 
                     allProdiOptions.forEach(function(option) {
-                        var fakultasId = option.getAttribute('data-fakultas');
+                        var fakultasId = option.getAttribute('data-units');
                         if (fakultasId == selectedFakultas) {
                             prodiDropdown.appendChild(option.cloneNode(true));
                         }
@@ -201,7 +201,7 @@
             });
         });
 
-        document.getElementById('prodi').addEventListener('change', function() {
+        document.getElementById('sub_units').addEventListener('change', function() {
             document.getElementById('filterForm').submit();
         });
 

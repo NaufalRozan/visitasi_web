@@ -32,10 +32,10 @@
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 <div class="d-sm-none d-lg-inline-block">
                     @php
-                        $prodi_id = session('prodi_id');
-                        $prodi = \App\Models\Prodi::find($prodi_id);
+                        $sub_unit_id = session('sub_unit_id');
+                        $sub_units = \App\Models\Prodi::find($sub_unit_id);
                     @endphp
-                    {{ auth()->user()->name }} | {{ $prodi ? $prodi->nama_prodi : 'Prodi Tidak Ditemukan' }}
+                    {{ auth()->user()->name }} | {{ $sub_units ? $sub_units->nama_sub_unit : 'Sub Unit Tidak Ditemukan' }}
                 </div>
             </a>
 

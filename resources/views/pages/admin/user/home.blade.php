@@ -35,8 +35,8 @@
                                         <td class="align-top p-2" style="width: 20%;">{{ $user->email }}</td>
                                         <td class="align-top p-2" style="width: 10%;">{{ $user->role }}</td>
                                         <td class="align-top p-2" style="width: 30%;">
-                                            @foreach ($user->prodis as $prodi)
-                                                {{ $prodi->nama_prodi }}<br>
+                                            @foreach ($user->sub_units as $sub_units)
+                                                {{ $sub_units->nama_sub_unit }}<br>
                                             @endforeach
                                         </td>
                                         <td class="align-top p-2" style="width: 15%;">

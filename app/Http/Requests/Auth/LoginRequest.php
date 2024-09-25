@@ -29,7 +29,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email',
             'password' => 'required',
-            'prodi_id' => 'required|exists:prodi,id',
+            'sub_unit_id' => 'required|exists:sub_units,id',
         ];
     }
 
@@ -43,10 +43,10 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $credentials = $this->only('email', 'password');
-        $prodi_id = $this->input('prodi_id');
+        $sub_unit_id = $this->input('sub_unit_id');
 
-        // Check if the user belongs to the selected prodi
-        if (Auth::attempt($credentials) && Auth::user()->prodis->contains($prodi_id)) {
+        // Check if the user belongs to the selected sub_unit
+        if (Auth::attempt($credentials) && Auth::user()->sub_units->contains($sub_unit_id))  {
             return;
         }
 
@@ -54,7 +54,7 @@ class LoginRequest extends FormRequest
 
         throw ValidationException::withMessages([
             'email' => __('auth.failed'),
-            'prodi_id' => 'Prodi tidak sesuai dengan akun Anda.',
+            'sub_unit_id' => 'Sub Unit tidak sesuai dengan akun Anda.',
         ]);
     }
 
