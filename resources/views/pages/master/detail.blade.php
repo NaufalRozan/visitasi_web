@@ -48,11 +48,11 @@
                             <div class="w-50 pr-2">
                                 <label for="units">Fakultas</label>
                                 <input type="text" class="form-control" value="{{ $sub_unit->units->nama_unit }}"
-                                    readonly>
+                                    disabled>
                             </div>
                             <div class="w-50 pl-2">
                                 <label for="sub_units">Program Studi</label>
-                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" readonly>
+                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" disabled>
                             </div>
                         @endif
                     </div>

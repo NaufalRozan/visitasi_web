@@ -19,6 +19,6 @@ class Fakultas extends Model
     // Mengatur relasi satu-ke-banyak dengan model Prodi
     public function sub_units()
     {
-        return $this->hasMany(Prodi::class);
+        return $this->hasMany(Prodi::class, 'unit_id');
     }
 }

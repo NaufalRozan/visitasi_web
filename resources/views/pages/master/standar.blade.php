@@ -48,13 +48,24 @@
                             <div class="w-50 pr-2">
                                 <label for="units">Fakultas</label>
                                 <input type="text" class="form-control" value="{{ $sub_unit->units->nama_unit }}"
-                                    readonly>
+                                    disabled>
                             </div>
                             <div class="w-50 pl-2">
                                 <label for="sub_units">Program Studi</label>
-                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" readonly>
+                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" disabled>
                             </div>
                         @endif
+                    </div>
+
+                    <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
+                    <div class="form-group">
+                        <label for="perPage">Row Page:</label>
+                        <select name="perPage" id="perPage" class="form-control"
+                            onchange="document.getElementById('filterForm').submit();">
+                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -95,8 +106,8 @@
                                                 <button class="btn btn-danger btn-sm"
                                                     onclick="confirmDelete({{ $standar->id }})">Delete</button>
                                                 <form id="delete-form-{{ $standar->id }}"
-                                                    action="{{ route('standar.destroy', $standar->id) }}" method="POST"
-                                                    style="display: none;">
+                                                    action="{{ route('standar.destroy', ['standar' => $standar->id, 'perPage' => request('perPage', 5)]) }}"
+                                                    method="POST" style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
@@ -106,6 +117,10 @@
                                 @endif
                             </tbody>
                         </table>
+                        <!-- Tambahkan Pagination -->
+                        <div class="mt-3">
+                            {{ $standars instanceof \Illuminate\Pagination\LengthAwarePaginator ? $standars->appends(['unit_id' => request('unit_id'), 'sub_unit_id' => request('sub_unit_id'), 'perPage' => $perPage])->links() : '' }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -129,11 +144,14 @@
                 <!-- Hidden Input untuk menyimpan akreditasi dari sub_unit yang dipilih -->
                 <input type="hidden" name="akreditasi_id" value="{{ $selected_akreditasi_id }}">
 
+                <!-- Hidden Input untuk perPage -->
+                <input type="hidden" name="perPage" value="{{ $perPage }}">
+
                 <!-- No Urut (Editable) -->
                 <div class="mb-4">
                     <label for="no_urut" class="block text-sm font-medium text-gray-700">No Urut</label>
-                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" class="form-control"
-                        required>
+                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}"
+                        class="form-control" required>
                 </div>
 
                 <!-- Nama Standar -->

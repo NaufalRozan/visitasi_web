@@ -21,8 +21,8 @@ class UserController extends Controller
     public function create()
     {
         // Ambil data fakultas dan relasi prodi untuk setiap fakultas
-        $fakultas = Fakultas::with('prodis')->get();
-        return view('pages.admin.user.create', compact('fakultas'));
+        $unit = Fakultas::with('sub_units')->get();
+        return view('pages.admin.user.create', compact('unit'));
     }
 
 
@@ -35,7 +35,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => 'required|string',
-            'prodi' => 'array', // Validasi agar input prodi adalah array
+            'sub_units' => 'array', // Validasi agar input prodi adalah array
         ]);
 
         // Buat user baru
@@ -47,8 +47,8 @@ class UserController extends Controller
         ]);
 
         // Simpan relasi user dengan prodi
-        if ($request->has('prodi')) {
-            $user->prodis()->sync($request->input('prodi'));
+        if ($request->has('sub_unit')) {
+            $user->sub_units()->sync($request->input('sub_unit'));
         }
 
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');

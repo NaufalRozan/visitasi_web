@@ -7,12 +7,16 @@ use App\Models\Fakultas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Prodi;
+use Illuminate\Pagination\Paginator;
+
+Paginator::useBootstrap();
 
 class AkreditasiController extends Controller
 {
     public function index(Request $request)
     {
         $user = Auth::user(); // Ambil data user yang login
+        $perPage = $request->input('perPage', 5); // Default jumlah row per halaman adalah 5
 
         if ($user->role === 'Prodi') {
             // Ambil prodi_id dari session jika user adalah Prodi
@@ -30,9 +34,9 @@ class AkreditasiController extends Controller
 
             $unit = $sub_unit->unit;
 
-            $akreditasis = Akreditasi::where('sub_unit_id', $sub_unit->id)->get();
+            $akreditasis = Akreditasi::where('sub_unit_id', $sub_unit->id)->paginate($perPage);
 
-            return view('pages.master.akreditasi', compact('unit', 'sub_unit', 'akreditasis', 'user'));
+            return view('pages.master.akreditasi', compact('unit', 'sub_unit', 'akreditasis', 'user', 'perPage'));
         } else {
             // Jika user role lain selain Prodi (misalnya Universitas atau Fakultas)
             $sub_units = $user->sub_units;
@@ -46,14 +50,15 @@ class AkreditasiController extends Controller
 
             if ($selected_sub_unit_id) {
                 $sub_unit = Prodi::find($selected_sub_unit_id); // Ambil prodi yang sesuai
-                $akreditasis = Akreditasi::where('sub_unit_id', $selected_sub_unit_id)->get();
+                $akreditasis = Akreditasi::where('sub_unit_id', $selected_sub_unit_id)->paginate($perPage);
             } else {
                 $akreditasis = collect(); // Kosongkan jika belum ada prodi yang dipilih
             }
 
-            return view('pages.master.akreditasi', compact('unit', 'sub_units', 'akreditasis', 'user', 'sub_unit'));
+            return view('pages.master.akreditasi', compact('unit', 'sub_units', 'akreditasis', 'user', 'sub_unit', 'perPage'));
         }
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -70,6 +75,7 @@ class AkreditasiController extends Controller
         return redirect()->route('akreditasi.index', [
             'sub_unit_id' => $request->sub_unit_id,
             'unit_id' => Prodi::find($request->sub_unit_id)->unit_id,
+            'perPage' => $request->input('perPage', 5),
         ])->with('success', 'Akreditasi berhasil ditambahkan!');
     }
 
@@ -89,11 +95,12 @@ class AkreditasiController extends Controller
             [
                 'sub_unit_id' => $akreditasi->sub_unit_id,
                 'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
+                'perPage' => $request->input('perPage', 5),
             ]
         )->with('success', 'Akreditasi berhasil diperbarui!');
     }
 
-    public function activate(Akreditasi $akreditasi)
+    public function activate(Akreditasi $akreditasi, Request $request)
     {
         // Nonaktifkan semua akreditasi pada sub_unit yang sama
         Akreditasi::where('sub_unit_id', $akreditasi->sub_unit_id)
@@ -107,18 +114,20 @@ class AkreditasiController extends Controller
             [
                 'sub_unit_id' => $akreditasi->sub_unit_id,
                 'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
+                'perPage' => $request->input('perPage', 5),
             ]
         )->with('success', 'Akreditasi berhasil diaktifkan!');
     }
 
 
-    public function destroy(Akreditasi $akreditasi)
+    public function destroy(Akreditasi $akreditasi, Request $request)
     {
         $akreditasi->delete();
 
         return redirect()->route('akreditasi.index', [
             'sub_unit_id' => $akreditasi->sub_unit_id,
             'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
+            'perPage' => $request->input('perPage', 5),
         ])->with('success', 'Akreditasi berhasil dihapus!');
     }
 }

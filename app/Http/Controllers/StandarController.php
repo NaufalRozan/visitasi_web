@@ -8,12 +8,16 @@ use App\Models\Standar;
 use App\Models\Prodi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\Paginator;
+
+Paginator::useBootstrap();
 
 class StandarController extends Controller
 {
     public function index(Request $request)
     {
         $user = Auth::user(); // Ambil data user yang login
+        $perPage = $request->input('perPage', 5); // Default jumlah row per halaman adalah 5
 
         // Jika user role adalah Prodi, gunakan session untuk menentukan prodi dan fakultas
         if ($user->role === 'Prodi') {
@@ -38,14 +42,14 @@ class StandarController extends Controller
             if ($selected_akreditasi_id) {
                 $standars = Standar::where('akreditasi_id', $selected_akreditasi_id)
                     ->orderBy('no_urut', 'asc')
-                    ->get();
+                    ->paginate($perPage);
             }
 
             // Tentukan nomor urut berikutnya
             $lastNumber = Standar::where('akreditasi_id', $selected_akreditasi_id)->max('no_urut');
             $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-            return view('pages.master.standar', compact('unit', 'sub_unit', 'standars', 'selected_akreditasi_id', 'nextNumber', 'user'));
+            return view('pages.master.standar', compact('unit', 'sub_unit', 'standars', 'selected_akreditasi_id', 'nextNumber', 'user', 'perPage'));
         } else {
             // Untuk role lainnya (Fakultas atau UNIV), tampilkan dropdown fakultas dan prodi
             $sub_units = $user->sub_units;
@@ -70,13 +74,13 @@ class StandarController extends Controller
             if ($selected_akreditasi_id) {
                 $standars = Standar::where('akreditasi_id', $selected_akreditasi_id)
                     ->orderBy('no_urut', 'asc')
-                    ->get();
+                    ->paginate($perPage);
             }
 
             $lastNumber = Standar::where('akreditasi_id', $selected_akreditasi_id)->max('no_urut');
             $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-            return view('pages.master.standar', compact('unit', 'sub_units', 'standars', 'selected_akreditasi_id', 'nextNumber', 'user'));
+            return view('pages.master.standar', compact('unit', 'sub_units', 'standars', 'selected_akreditasi_id', 'nextNumber', 'user', 'perPage'));
         }
     }
 
@@ -109,6 +113,7 @@ class StandarController extends Controller
             'akreditasi_id' => $request->akreditasi_id,
             'unit_id' => Prodi::find($akreditasi->sub_unit_id)->unit_id,
             'sub_unit_id' => $akreditasi->sub_unit_id,
+            'perPage' => $request->input('perPage', 5),
         ])->with('success', 'Standar berhasil ditambahkan!');
     }
 
@@ -144,11 +149,12 @@ class StandarController extends Controller
                 'akreditasi_id' => $request->akreditasi_id,
                 'unit_id' => Prodi::find($standar->akreditasi->sub_unit_id)->unit_id,
                 'sub_unit_id' => $standar->akreditasi->sub_unit_id,
+                'perPage' => $request->input('perPage', 5),
             ],
         )->with('success', 'Standar berhasil diperbarui!');
     }
 
-    public function destroy(Standar $standar)
+    public function destroy(Standar $standar, Request $request)
     {
         $akreditasi_id = $standar->akreditasi_id;
         $standar->delete();
@@ -157,6 +163,7 @@ class StandarController extends Controller
             'unit_id' => Prodi::find($standar->akreditasi->sub_unit_id)->unit_id,
             'sub_unit_id' => $standar->akreditasi->sub_unit_id,
             'akreditasi_id' => $akreditasi_id,
+            'perPage' => $request->input('perPage', 5),
         ])->with('success', 'Standar berhasil dihapus!');
     }
 }

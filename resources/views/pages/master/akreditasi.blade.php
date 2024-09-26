@@ -48,13 +48,24 @@
                             <div class="w-50 pr-2">
                                 <label for="units">Fakultas</label>
                                 <input type="text" class="form-control" value="{{ $sub_unit->units->nama_unit }}"
-                                    readonly>
+                                    disabled>
                             </div>
                             <div class="w-50 pl-2">
                                 <label for="sub_units">Program Studi</label>
-                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" readonly>
+                                <input type="text" class="form-control" value="{{ $sub_unit->nama_sub_unit }}" disabled>
                             </div>
                         @endif
+                    </div>
+
+                    <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
+                    <div class="form-group">
+                        <label for="perPage">Row Page:</label>
+                        <select name="perPage" id="perPage" class="form-control"
+                            onchange="document.getElementById('filterForm').submit();">
+                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -84,9 +95,10 @@
                                         </td>
                                     </tr>
                                 @else
-                                    @foreach ($akreditasis as $akreditasi)
+                                    @foreach ($akreditasis as $index => $akreditasi)
                                         <tr data-id="{{ $akreditasi->id }}">
-                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ ($akreditasis->currentPage() - 1) * $akreditasis->perPage() + $index + 1 }}
+                                            </td>
                                             <td>{{ $akreditasi->nama_akreditasi }}</td>
                                             <td>
                                                 <span
@@ -104,13 +116,13 @@
                                                         onclick="confirmActivate({{ $akreditasi->id }})">Aktifkan</button>
                                                 @endif
                                                 <form id="delete-form-{{ $akreditasi->id }}"
-                                                    action="{{ route('akreditasi.destroy', $akreditasi->id) }}"
+                                                    action="{{ route('akreditasi.destroy', ['akreditasi' => $akreditasi->id, 'perPage' => request('perPage', 5)]) }}"
                                                     method="POST" style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
                                                 <form id="activate-form-{{ $akreditasi->id }}"
-                                                    action="{{ route('akreditasi.activate', $akreditasi->id) }}"
+                                                    action="{{ route('akreditasi.activate', ['akreditasi' => $akreditasi->id, 'perPage' => request('perPage', 5)]) }}"
                                                     method="POST" style="display: none;">
                                                     @csrf
                                                     @method('PUT')
@@ -121,6 +133,10 @@
                                 @endif
                             </tbody>
                         </table>
+                        <!-- Tambahkan Pagination -->
+                        <div class="mt-3">
+                            {{ $akreditasis instanceof \Illuminate\Pagination\LengthAwarePaginator ? $akreditasis->appends(['unit_id' => request('unit_id'), 'sub_unit_id' => request('sub_unit_id'), 'perPage' => $perPage])->links() : '' }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,6 +161,8 @@
                 @else
                     <input type="hidden" name="sub_unit_id" value="">
                 @endif
+                <!-- Hidden Input untuk perPage -->
+                <input type="hidden" name="perPage" value="{{ $perPage }}">
 
                 <input type="hidden" id="methodField" name="_method" value="POST">
 
@@ -155,9 +173,7 @@
                 </div>
 
                 <div>
-                    <button type="submit" id="submitBtn" class="btn btn-success">
-                        Tambah Akreditasi
-                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-success">Tambah Akreditasi</button>
                 </div>
             </form>
         </div>
