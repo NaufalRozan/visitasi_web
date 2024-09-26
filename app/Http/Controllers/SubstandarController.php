@@ -19,6 +19,7 @@ class SubstandarController extends Controller
     {
         $user = Auth::user();
         $perPage = $request->input('perPage', 5);
+        $search = $request->input('search'); // Ambil input pencarian
 
         if ($user->role === 'Prodi') {
             $sub_unit_id = session('sub_unit_id');
@@ -28,10 +29,6 @@ class SubstandarController extends Controller
             }
 
             $sub_unit = Prodi::find($sub_unit_id);
-
-            if (!$sub_unit) {
-                return redirect()->route('login')->withErrors('Sub Unit tidak ditemukan.');
-            }
 
             $unit = $sub_unit->unit;
 
@@ -44,6 +41,9 @@ class SubstandarController extends Controller
             if ($request->has('standar_id')) {
                 $selectedStandarId = $request->standar_id;
                 $substandars = Substandar::where('standar_id', $selectedStandarId)
+                    ->when($search, function ($query, $search) {
+                        return $query->where('nama_substandar', 'like', "%{$search}%");
+                    })
                     ->orderBy('no_urut')
                     ->paginate($perPage);
             }
@@ -72,6 +72,9 @@ class SubstandarController extends Controller
             if ($request->has('standar_id')) {
                 $selectedStandarId = $request->standar_id;
                 $substandars = Substandar::where('standar_id', $selectedStandarId)
+                    ->when($search, function ($query, $search) {
+                        return $query->where('nama_substandar', 'like', "%{$search}%");
+                    })
                     ->orderBy('no_urut')
                     ->paginate($perPage);
             }

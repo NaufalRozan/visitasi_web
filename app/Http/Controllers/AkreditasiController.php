@@ -17,6 +17,7 @@ class AkreditasiController extends Controller
     {
         $user = Auth::user(); // Ambil data user yang login
         $perPage = $request->input('perPage', 5); // Default jumlah row per halaman adalah 5
+        $search = $request->input('search'); // Ambil input pencarian
 
         if ($user->role === 'Prodi') {
             // Ambil prodi_id dari session jika user adalah Prodi
@@ -27,14 +28,14 @@ class AkreditasiController extends Controller
             }
 
             $sub_unit = Prodi::find($sub_unit_id);
-
-            if (!$sub_unit) {
-                return redirect()->route('login')->withErrors('Prodi tidak ditemukan.');
-            }
-
             $unit = $sub_unit->unit;
 
-            $akreditasis = Akreditasi::where('sub_unit_id', $sub_unit->id)->paginate($perPage);
+            // Menambahkan fitur pencarian untuk Akreditasi berdasarkan nama
+            $akreditasis = Akreditasi::where('sub_unit_id', $sub_unit->id)
+                ->when($search, function ($query, $search) {
+                    return $query->where('nama_akreditasi', 'like', "%{$search}%");
+                })
+                ->paginate($perPage);
 
             return view('pages.master.akreditasi', compact('unit', 'sub_unit', 'akreditasis', 'user', 'perPage'));
         } else {
@@ -50,7 +51,11 @@ class AkreditasiController extends Controller
 
             if ($selected_sub_unit_id) {
                 $sub_unit = Prodi::find($selected_sub_unit_id); // Ambil prodi yang sesuai
-                $akreditasis = Akreditasi::where('sub_unit_id', $selected_sub_unit_id)->paginate($perPage);
+                $akreditasis = Akreditasi::where('sub_unit_id', $selected_sub_unit_id)
+                    ->when($search, function ($query, $search) {
+                        return $query->where('nama_akreditasi', 'like', "%{$search}%");
+                    })
+                    ->paginate($perPage);
             } else {
                 $akreditasis = collect(); // Kosongkan jika belum ada prodi yang dipilih
             }
@@ -58,6 +63,7 @@ class AkreditasiController extends Controller
             return view('pages.master.akreditasi', compact('unit', 'sub_units', 'akreditasis', 'user', 'sub_unit', 'perPage'));
         }
     }
+
 
     public function store(Request $request)
     {

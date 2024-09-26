@@ -21,10 +21,12 @@ class DetailController extends Controller
     {
         $user = Auth::user();
         $perPage = $request->input('perPage', 5);
+        $search = $request->input('search'); // Ambil input pencarian
 
         // Jika user role adalah Prodi, gunakan session
         if ($user->role === 'Prodi') {
             $sub_unit_id = session('sub_unit_id');
+
 
             if (!$sub_unit_id) {
                 return redirect()->route('login')->withErrors('Prodi tidak ditemukan. Silakan login kembali.');
@@ -57,6 +59,9 @@ class DetailController extends Controller
             if ($request->has('substandar_id')) {
                 $selectedSubstandarId = $request->substandar_id;
                 $details = Detail::where('substandar_id', $selectedSubstandarId)
+                    ->when($search, function ($query, $search) {
+                        return $query->where('nama_detail', 'like', "%{$search}%");
+                    })
                     ->orderBy('no_urut')
                     ->paginate($perPage);
             }
@@ -96,6 +101,9 @@ class DetailController extends Controller
             if ($request->has('substandar_id')) {
                 $selectedSubstandarId = $request->substandar_id;
                 $details = Detail::where('substandar_id', $selectedSubstandarId)
+                    ->when($search, function ($query, $search) {
+                        return $query->where('nama_detail', 'like', "%{$search}%");
+                    })
                     ->orderBy('no_urut')
                     ->paginate($perPage);
             }

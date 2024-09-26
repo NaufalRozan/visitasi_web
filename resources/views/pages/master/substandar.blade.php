@@ -74,14 +74,22 @@
                     </div>
 
                     <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
-                    <div class="">
-                        <label for="perPage">Row Page:</label>
-                        <select name="perPage" id="perPage" class="form-control"
-                            onchange="document.getElementById('filterForm').submit();">
-                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
-                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
-                        </select>
+                    <div class="form-group row">
+                        <div class="col-md-2">
+                            <label for="perPage">Row Page:</label>
+                            <select name="perPage" id="perPage" class="form-control"
+                                onchange="document.getElementById('filterForm').submit();">
+                                <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="search">Cari Nama Sub Standar</label>
+                            <input type="text" id="search" name="search" class="form-control"
+                                placeholder="Cari Nama Sub Standar">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -192,15 +200,42 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
     <script>
+        $(document).ready(function() {
+            $('#search').on('input', function() {
+                var searchQuery = $(this).val();
+
+                $.ajax({
+                    url: '{{ route('substandar.index') }}',
+                    type: 'GET',
+                    data: {
+                        search: searchQuery,
+                        unit_id: $('#units').val(),
+                        sub_unit_id: $('#sub_units').val(),
+                        standar_id: $('#standar').val(), // pastikan standar_id dikirimkan
+                        perPage: $('#perPage').val(),
+                    },
+                    success: function(response) {
+                        // Replace entire section to avoid partial replacement errors
+                        $('.table-responsive').html($(response).find('.table-responsive')
+                            .html());
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+        });
+
+
         document.addEventListener('DOMContentLoaded', function() {
             // Inisialisasi SortableJS pada tabel
-            var el = document.getElementById('standarTableBody');
+            var el = document.getElementById('substandarTableBody');
             var sortable = Sortable.create(el, {
                 handle: '.handle',
                 animation: 150,
                 onEnd: function(evt) {
                     var order = [];
-                    $('#standarTableBody tr').each(function(index, element) {
+                    $('#substandarTableBody tr').each(function(index, element) {
                         order.push({
                             id: $(element).data('id'),
                             no_urut: index + 1
@@ -212,7 +247,7 @@
 
                     // Kirim urutan baru ke server menggunakan AJAX
                     $.ajax({
-                        url: "{{ route('standar.updateOrder') }}",
+                        url: "{{ route('substandar.updateOrder') }}",
                         method: 'POST',
                         data: {
                             order: order,

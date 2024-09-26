@@ -58,14 +58,22 @@
                     </div>
 
                     <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
-                    <div class="">
-                        <label for="perPage">Row Page:</label>
-                        <select name="perPage" id="perPage" class="form-control"
-                            onchange="document.getElementById('filterForm').submit();">
-                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
-                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
-                        </select>
+                    <div class="form-group row">
+                        <div class="col-md-2">
+                            <label for="perPage">Row Page:</label>
+                            <select name="perPage" id="perPage" class="form-control"
+                                onchange="document.getElementById('filterForm').submit();">
+                                <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="search">Cari Nama Standar</label>
+                            <input type="text" id="search" name="search" class="form-control"
+                                placeholder="Cari Nama Standar">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -174,7 +182,33 @@
     <!-- Tambahkan SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
+    <!-- Script Search -->
     <script>
+        // Script untuk melakukan pencarian data standar
+        $(document).ready(function() {
+            $('#search').on('input', function() {
+                var searchQuery = $(this).val();
+
+                $.ajax({
+                    url: '{{ route('standar.index') }}',
+                    type: 'GET',
+                    data: {
+                        search: searchQuery,
+                        unit_id: $('#units').val(),
+                        sub_unit_id: $('#sub_units').val(),
+                        perPage: $('#perPage').val(),
+                    },
+                    success: function(response) {
+                        var newStandarTable = $(response).find('#standarTableBody').html();
+                        $('#standarTableBody').html(newStandarTable);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Inisialisasi SortableJS pada tabel
             var el = document.getElementById('standarTableBody');

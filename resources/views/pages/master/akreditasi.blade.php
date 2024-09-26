@@ -58,14 +58,22 @@
                     </div>
 
                     <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
-                    <div class="">
-                        <label for="perPage">Row Page:</label>
-                        <select name="perPage" id="perPage" class="form-control"
-                            onchange="document.getElementById('filterForm').submit();">
-                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
-                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
-                        </select>
+                    <div class="form-group row">
+                        <div class="col-md-2">
+                            <label for="perPage">Row Page:</label>
+                            <select name="perPage" id="perPage" class="form-control"
+                                onchange="document.getElementById('filterForm').submit();">
+                                <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="search">Cari Nama Akreditasi</label>
+                            <input type="text" id="search" name="search" class="form-control"
+                                placeholder="Cari Nama Akreditasi">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -182,6 +190,31 @@
 
 @push('scripts')
     <script>
+        // Script untuk melakukan pencarian data standar
+        $(document).ready(function() {
+            $('#search').on('input', function() {
+                var searchQuery = $(this).val();
+
+                $.ajax({
+                    url: '{{ route('akreditasi.index') }}',
+                    type: 'GET',
+                    data: {
+                        search: searchQuery,
+                        unit_id: $('#units').val(),
+                        sub_unit_id: $('#sub_units').val(),
+                        perPage: $('#perPage').val(),
+                    },
+                    success: function(response) {
+                        var newStandarTable = $(response).find('#akreditasiTableBody').html();
+                        $('#akreditasiTableBody').html(newStandarTable);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+        });
+
         // Tambahkan kode lain terkait dropdown prodi dan fakultas
         document.addEventListener('DOMContentLoaded', function() {
             var fakultasDropdown = document.getElementById('units');
