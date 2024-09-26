@@ -57,34 +57,46 @@
                         @endif
                     </div>
 
-                    <!-- Dropdown untuk Standar -->
-                    <div class="form-group d-flex justify-content-between">
-                        <div class="w-50 pr-2">
-                            <label for="standar">Bagian</label>
-                            <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
-                                <option value="" disabled selected>Pilih Bagian</option>
-                                @foreach ($standars as $standar)
-                                    <option value="{{ $standar->id }}"
-                                        {{ request('standar_id') == $standar->id ? 'selected' : '' }}>
-                                        {{ $standar->nama_standar }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <!-- Dropdown untuk Standar -->
+                        <div class="form-group d-flex justify-content-between">
+                            <div class="w-50 pr-2">
+                                <label for="standar">Bagian</label>
+                                <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
+                                    <option value="" disabled selected>Pilih Bagian</option>
+                                    @foreach ($standars as $standar)
+                                        <option value="{{ $standar->id }}"
+                                            {{ request('standar_id') == $standar->id ? 'selected' : '' }}>
+                                            {{ $standar->nama_standar }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        <!-- Kolom Kanan: Substandar -->
-                        <div class="w-50 pl-2">
-                            <label for="substandar">Sub-Bagian</label>
-                            <select name="substandar_id" id="substandar" class="form-control" onchange="this.form.submit()">
-                                <option value="" disabled selected>Pilih Sub-Bagian</option>
-                                @foreach ($substandars as $substandar)
-                                    <option value="{{ $substandar->id }}"
-                                        {{ request('substandar_id') == $substandar->id ? 'selected' : '' }}>
-                                        {{ $substandar->nama_substandar }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <!-- Kolom Kanan: Substandar -->
+                            <div class="w-50 pl-2">
+                                <label for="substandar">Sub-Bagian</label>
+                                <select name="substandar_id" id="substandar" class="form-control"
+                                    onchange="this.form.submit()">
+                                    <option value="" disabled selected>Pilih Sub-Bagian</option>
+                                    @foreach ($substandars as $substandar)
+                                        <option value="{{ $substandar->id }}"
+                                            {{ request('substandar_id') == $substandar->id ? 'selected' : '' }}>
+                                            {{ $substandar->nama_substandar }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
+                    </div>
+                    <div class="">
+                        <label for="perPage">Row Page:</label>
+                        <select name="perPage" id="perPage" class="form-control"
+                            onchange="document.getElementById('filterForm').submit();">
+                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -124,8 +136,8 @@
                                                 <button class="btn btn-danger btn-sm"
                                                     onclick="confirmDelete({{ $detail->id }})">Delete</button>
                                                 <form id="delete-form-{{ $detail->id }}"
-                                                    action="{{ route('detail.destroy', $detail->id) }}" method="POST"
-                                                    style="display: none;">
+                                                    action="{{ route('detail.destroy', ['detail' => $detail->id, 'perPage' => request('perPage', 5)]) }}"
+                                                    method="POST" style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
@@ -135,6 +147,9 @@
                                 @endif
                             </tbody>
                         </table>
+                        <div class="mt-3">
+                            {{ $details instanceof \Illuminate\Pagination\LengthAwarePaginator ? $details->appends(['unit_id' => request('unit_id'), 'sub_unit_id' => request('sub_unit_id'), 'standar_id' => request('standar_id'), 'substandar_id' => request('substandar_id'), 'perPage' => $perPage])->links() : '' }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,6 +172,9 @@
                 <input type="hidden" name="standar_id" value="{{ request('standar_id') }}">
                 <input type="hidden" name="substandar_id" value="{{ request('substandar_id') }}">
                 <input type="hidden" name="akreditasi_id" value="{{ request('akreditasi_id') }}">
+
+                <!-- Hidden Input untuk perPage -->
+                <input type="hidden" name="perPage" value="{{ $perPage }}">
 
                 <!-- No Urut -->
                 <div class="mb-4">

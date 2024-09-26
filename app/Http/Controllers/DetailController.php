@@ -11,12 +11,16 @@ use App\Models\DetailItem;
 use App\Models\Fakultas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\Paginator;
+
+Paginator::useBootstrap();
 
 class DetailController extends Controller
 {
     public function index(Request $request)
     {
         $user = Auth::user();
+        $perPage = $request->input('perPage', 5);
 
         // Jika user role adalah Prodi, gunakan session
         if ($user->role === 'Prodi') {
@@ -54,14 +58,14 @@ class DetailController extends Controller
                 $selectedSubstandarId = $request->substandar_id;
                 $details = Detail::where('substandar_id', $selectedSubstandarId)
                     ->orderBy('no_urut')
-                    ->get();
+                    ->paginate($perPage);
             }
 
             // Tentukan nomor urut berikutnya
             $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
             $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-            return view('pages.master.detail', compact('unit', 'sub_unit', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
+            return view('pages.master.detail', compact('unit', 'sub_unit', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user', 'perPage'));
         } else {
             // Untuk role lainnya (Fakultas atau UNIV)
             $sub_units = $user->sub_units;
@@ -93,14 +97,14 @@ class DetailController extends Controller
                 $selectedSubstandarId = $request->substandar_id;
                 $details = Detail::where('substandar_id', $selectedSubstandarId)
                     ->orderBy('no_urut')
-                    ->get();
+                    ->paginate($perPage);
             }
 
             // Tentukan nomor urut berikutnya
             $lastNumber = Detail::where('substandar_id', $request->substandar_id)->max('no_urut');
             $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
-            return view('pages.master.detail', compact('unit', 'sub_units', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user'));
+            return view('pages.master.detail', compact('unit', 'sub_units', 'standars', 'substandars', 'details', 'nextNumber', 'selected_akreditasi_id', 'user', 'perPage'));
         }
     }
 
@@ -124,7 +128,8 @@ class DetailController extends Controller
             'unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit->unit_id,
             'sub_unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit_id,
             'standar_id' => $request->standar_id,
-            'substandar_id' => $request->substandar_id
+            'substandar_id' => $request->substandar_id,
+            'perPage' => $request->input('perPage', 5)
         ])->with('success', 'Detail berhasil ditambahkan!');
     }
 
@@ -158,11 +163,12 @@ class DetailController extends Controller
             'unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit->unit_id,
             'sub_unit_id' => Substandar::find($request->substandar_id)->standar->akreditasi->sub_unit_id,
             'standar_id' => $request->standar_id,
-            'substandar_id' => $request->substandar_id
+            'substandar_id' => $request->substandar_id,
+            'perPage' => $request->input('perPage', 5)
         ])->with('success', 'Detail berhasil diperbarui!');
     }
 
-    public function destroy(Detail $detail)
+    public function destroy(Detail $detail, Request $request)
     {
         $akrediatas_id = $detail->substandar->standar->akreditasi_id;
         $standar_id = $detail->substandar->standar_id;
@@ -174,7 +180,8 @@ class DetailController extends Controller
             'unit_id' => Substandar::find($substandar_id)->standar->akreditasi->sub_unit->unit_id,
             'sub_unit_id' => Substandar::find($substandar_id)->standar->akreditasi->sub_unit_id,
             'standar_id' => $standar_id,
-            'akreditasi_id' => $akrediatas_id
+            'akreditasi_id' => $akrediatas_id,
+            'perPage' => $request->input('perPage', 5),
         ])->with('success', 'Detail berhasil dihapus!');
     }
 
