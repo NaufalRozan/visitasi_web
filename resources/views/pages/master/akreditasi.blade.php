@@ -58,7 +58,7 @@
                     </div>
 
                     <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
-                    <div class="form-group">
+                    <div class="">
                         <label for="perPage">Row Page:</label>
                         <select name="perPage" id="perPage" class="form-control"
                             onchange="document.getElementById('filterForm').submit();">

@@ -58,16 +58,29 @@
                     </div>
 
                     <!-- Dropdown untuk Standar -->
+                    <div class="form-group">
+                        <div class="">
+                            <label for="standar">Bagian</label>
+                            <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
+                                <option value="" disabled selected>Pilih Bagian</option>
+                                @foreach ($standars as $standar)
+                                    <option value="{{ $standar->id }}"
+                                        {{ request('standar_id') == $standar->id ? 'selected' : '' }}>
+                                        {{ $standar->nama_standar }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tambahkan Dropdown untuk jumlah row per halaman -->
                     <div class="">
-                        <label for="standar">Bagian</label>
-                        <select name="standar_id" id="standar" class="form-control" onchange="this.form.submit()">
-                            <option value="" disabled selected>Pilih Bagian</option>
-                            @foreach ($standars as $standar)
-                                <option value="{{ $standar->id }}"
-                                    {{ request('standar_id') == $standar->id ? 'selected' : '' }}>
-                                    {{ $standar->nama_standar }}
-                                </option>
-                            @endforeach
+                        <label for="perPage">Row Page:</label>
+                        <select name="perPage" id="perPage" class="form-control"
+                            onchange="document.getElementById('filterForm').submit();">
+                            <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ $perPage == 20 ? 'selected' : '' }}>20</option>
                         </select>
                     </div>
                 </form>
@@ -109,7 +122,7 @@
                                                 <button class="btn btn-danger btn-sm"
                                                     onclick="confirmDelete({{ $substandar->id }})">Delete</button>
                                                 <form id="delete-form-{{ $substandar->id }}"
-                                                    action="{{ route('substandar.destroy', $substandar->id) }}"
+                                                    action="{{ route('substandar.destroy', ['substandar' => $substandar->id, 'perPage' => request('perPage', 5)]) }}"
                                                     method="POST" style="display: none;">
                                                     @csrf
                                                     @method('DELETE')
@@ -120,6 +133,10 @@
                                 @endif
                             </tbody>
                         </table>
+                        <!-- Tambahkan Pagination -->
+                        <div class="mt-3">
+                            {{ $substandars instanceof \Illuminate\Pagination\LengthAwarePaginator ? $substandars->appends(['unit_id' => request('unit_id'), 'sub_unit_id' => request('sub_unit_id'), 'standar_id' => request('standar_id'), 'perPage' => $perPage])->links() : '' }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -141,13 +158,17 @@
                 <input type="hidden" id="methodField" name="_method" value="POST">
                 <input type="hidden" name="standar_id" value="{{ request('standar_id') }}">
                 <input type="hidden" name="akreditasi_id" value="{{ request('akreditasi_id') }}">
+
+                <!-- Hidden Input untuk perPage -->
+                <input type="hidden" name="perPage" value="{{ $perPage }}">
+
                 <!-- Pastikan standar_id dan akreditasi_id tersimpan -->
 
                 <!-- No Urut (Editable) -->
                 <div class="mb-4">
                     <label for="no_urut" class="block text-sm font-medium text-gray-700">No Urut</label>
-                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}" class="form-control"
-                        required>
+                    <input type="text" name="no_urut" id="no_urut" value="{{ $nextNumber }}"
+                        class="form-control" required>
                 </div>
 
                 <!-- Nama Substandar -->
