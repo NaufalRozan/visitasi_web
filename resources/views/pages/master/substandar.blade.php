@@ -86,9 +86,9 @@
                         </div>
 
                         <div class="col-md-2">
-                            <label for="search">Cari Nama Sub Standar</label>
+                            <label for="search">Cari Nama Sub-Bagian</label>
                             <input type="text" id="search" name="search" class="form-control"
-                                placeholder="Cari Nama Sub Standar">
+                                placeholder="Cari Nama Sub-Bagian">
                         </div>
                     </div>
                 </form>

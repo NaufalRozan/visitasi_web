@@ -42,24 +42,23 @@ class ResumeController extends Controller
 
         $standars = collect();
         if ($selected_akreditasi_id) {
-            // Hitung jumlah dokumen berdasarkan tipe
+            // Hitung jumlah item dokumen, url, image, dan video untuk setiap detail
             $standars = Standar::where('akreditasi_id', $selected_akreditasi_id)
-                ->withCount(['details as document_count' => function ($query) {
-                    $query->whereHas('items', function ($query) {
-                        $query->where('tipe', 'Document');
-                    });
-                }, 'details as url_count' => function ($query) {
-                    $query->whereHas('items', function ($query) {
-                        $query->where('tipe', 'URL');
-                    });
-                }, 'details as image_count' => function ($query) {
-                    $query->whereHas('items', function ($query) {
-                        $query->where('tipe', 'Image');
-                    });
-                }, 'details as video_count' => function ($query) {
-                    $query->whereHas('items', function ($query) {
-                        $query->where('tipe', 'Video');
-                    });
+                ->with(['details' => function ($query) {
+                    $query->withCount([
+                        'items as document_count' => function ($query) {
+                            $query->where('tipe', 'Document');
+                        },
+                        'items as url_count' => function ($query) {
+                            $query->where('tipe', 'URL');
+                        },
+                        'items as image_count' => function ($query) {
+                            $query->where('tipe', 'Image');
+                        },
+                        'items as video_count' => function ($query) {
+                            $query->where('tipe', 'Video');
+                        }
+                    ]);
                 }])
                 ->get();
         }

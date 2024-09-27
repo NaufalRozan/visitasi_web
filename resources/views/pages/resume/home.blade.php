@@ -80,27 +80,31 @@
 
                                 @foreach ($standars as $standar)
                                     @php
+                                        $standarDocumentCount = $standar->details->sum('document_count');
+                                        $standarUrlCount = $standar->details->sum('url_count');
+                                        $standarImageCount = $standar->details->sum('image_count');
+                                        $standarVideoCount = $standar->details->sum('video_count');
                                         $standarTotal =
-                                            $standar->document_count +
-                                            $standar->url_count +
-                                            $standar->image_count +
-                                            $standar->video_count;
+                                            $standarDocumentCount +
+                                            $standarUrlCount +
+                                            $standarImageCount +
+                                            $standarVideoCount;
                                     @endphp
                                     <tr>
                                         <td>{{ $standar->nama_standar }}</td>
-                                        <td>{{ $standar->document_count }}</td>
-                                        <td>{{ $standar->url_count }}</td>
-                                        <td>{{ $standar->image_count }}</td>
-                                        <td>{{ $standar->video_count }}</td>
+                                        <td>{{ $standarDocumentCount }}</td>
+                                        <td>{{ $standarUrlCount }}</td>
+                                        <td>{{ $standarImageCount }}</td>
+                                        <td>{{ $standarVideoCount }}</td>
                                         <td>{{ $standarTotal }}</td> <!-- Total per Standar -->
                                     </tr>
 
                                     @php
                                         // Hitung total dokumen, url, image, video, dan total item
-                                        $totalDocuments += $standar->document_count;
-                                        $totalURLs += $standar->url_count;
-                                        $totalImages += $standar->image_count;
-                                        $totalVideos += $standar->video_count;
+                                        $totalDocuments += $standarDocumentCount;
+                                        $totalURLs += $standarUrlCount;
+                                        $totalImages += $standarImageCount;
+                                        $totalVideos += $standarVideoCount;
                                         $totalItems += $standarTotal; // Total semua item dari setiap standar
                                     @endphp
                                 @endforeach

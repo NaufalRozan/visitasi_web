@@ -70,9 +70,9 @@
                         </div>
 
                         <div class="col-md-2">
-                            <label for="search">Cari Nama Standar</label>
+                            <label for="search">Cari Nama Bagian</label>
                             <input type="text" id="search" name="search" class="form-control"
-                                placeholder="Cari Nama Standar">
+                                placeholder="Cari Nama Bagian">
                         </div>
                     </div>
                 </form>
