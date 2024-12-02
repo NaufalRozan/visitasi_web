@@ -15,8 +15,8 @@ class SyncProdiFakultas extends Command
     public function handle()
     {
         // Ganti URL_API dengan endpoint API yang tepat
-        $fakultasResponse = Http::get('http://192.168.100.129:8000/api/fakultas/');
-        $prodiResponse = Http::get('http://192.168.100.129:8000/api/prodi/');
+        $fakultasResponse = Http::get('http://10.69.6.133:8000/api/fakultas/');
+        $prodiResponse = Http::get('http://10.69.6.133:8000/api/prodi/');
 
         $fakultasData = $fakultasResponse->json();
         $prodiData = $prodiResponse->json();
@@ -25,7 +25,7 @@ class SyncProdiFakultas extends Command
         foreach ($fakultasData as $fakultas) {
             Fakultas::updateOrCreate(
                 ['id' => $fakultas['id']],
-                ['nama_fakultas' => $fakultas['nama_fakultas']]
+                ['nama_unit' => $fakultas['nama_unit']]
             );
         }
 
@@ -34,8 +34,8 @@ class SyncProdiFakultas extends Command
             Prodi::updateOrCreate(
                 ['id' => $prodi['id']],
                 [
-                    'nama_prodi' => $prodi['nama_prodi'],
-                    'fakultas_id' => $prodi['fakultas_id']
+                    'nama_sub_unit' => $prodi['nama_sub_unit'],
+                    'unit_id' => $prodi['unit_id']
                 ]
             );
         }

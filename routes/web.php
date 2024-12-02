@@ -83,6 +83,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('user', UserController::class);
     Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
     Route::post('/user', [UserController::class, 'store'])->name('user.store');
+    Route::get('user/{user}/get', [UserController::class, 'getUser'])->name('user.get');
 });
 
 // Autentikasi route (login, register, reset password, dll.)

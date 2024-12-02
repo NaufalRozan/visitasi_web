@@ -39,10 +39,19 @@
                                                 {{ $sub_units->nama_sub_unit }}<br>
                                             @endforeach
                                         </td>
-                                        <td class="align-top p-2" style="width: 15%;">
-                                            <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                                        <td>
+                                            <a href="{{ route('user.edit', $user) }}"
+                                                class="btn btn-warning btn-sm">Edit</a>
+                                            <form id="delete-form-{{ $user->id }}"
+                                                action="{{ route('user.destroy', $user) }}" method="POST"
+                                                style="display: none;">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                            <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="confirmDelete({{ $user->id }})">Delete</button>
                                         </td>
+
                                     </tr>
                                 @empty
                                     <tr>
@@ -56,6 +65,7 @@
             </div>
         </section>
     </div>
+    <x-sweet-alert-delete />
 @endsection
 
 @push('scripts')
