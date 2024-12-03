@@ -15,7 +15,7 @@ class DetailItemController extends Controller
             'detail_id' => 'required|exists:detail,id',
             'no_urut'   => 'required|integer',
             'deskripsi' => 'required|string|max:255',
-            'lokasi'    => 'nullable|string|max:255', 
+            'lokasi'    => 'nullable|string|max:255',
             'file_upload' => 'nullable|file|max:2048', // Validasi untuk file (max size 2MB)
             'tipe'      => 'required|string|max:255',
         ]);
@@ -122,5 +122,31 @@ class DetailItemController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function view($id)
+    {
+        $detailItem = DetailItem::findOrFail($id);
+
+        // Pastikan lokasi dokumen ada
+        if (!$detailItem->lokasi || !file_exists(public_path($detailItem->lokasi))) {
+            return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
+        }
+
+        // Untuk tipe URL, langsung redirect
+        if ($detailItem->tipe === 'URL') {
+            return redirect($detailItem->lokasi);
+        }
+
+        // Ambil jalur file
+        $filePath = public_path($detailItem->lokasi);
+
+        // Tentukan header untuk pratinjau
+        $mimeType = mime_content_type($filePath);
+
+        // Return file untuk ditampilkan di browser
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+        ]);
     }
 }

@@ -61,6 +61,8 @@
                                                 </td>
                                                 <td>{{ $item->tipe }}</td>
                                                 <td>
+                                                    <a href="{{ route('detail_item.view', $item->id) }}"
+                                                        class="btn btn-success btn-sm" target="_blank">View</a>
                                                     <button class="btn btn-warning btn-sm"
                                                         onclick="openModalEdit('{{ $item->id }}', '{{ $item->no_urut }}', '{{ $item->deskripsi }}', '{{ $item->lokasi }}', '{{ $item->tipe }}')">Edit</button>
                                                     <button class="btn btn-danger btn-sm"
